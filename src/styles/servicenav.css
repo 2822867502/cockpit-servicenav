@@ -54,21 +54,40 @@
   --pf-v5-c-card--BackgroundColor: var(--pf-v5-global--BackgroundColor--200);
   /* Page */
   --pf-v5-c-page--BackgroundColor: var(--pf-v5-global--BackgroundColor--100);
-  /* Form control */
+  /* Form control: border is on ::before/::after pseudo-elements in PF5 */
   --pf-v5-c-form-control--BackgroundColor: #1e1e1e;
   --pf-v5-c-form-control--Color: var(--pf-v5-global--Color--100);
   --pf-v5-c-form-control--BorderRadius: 4px;
-  --pf-v5-c-form-control--BorderTopColor: var(--pf-v5-global--BorderColor--100);
-  --pf-v5-c-form-control--BorderRightColor: var(--pf-v5-global--BorderColor--100);
-  --pf-v5-c-form-control--BorderBottomColor: var(--pf-v5-global--BorderColor--100);
-  --pf-v5-c-form-control--BorderLeftColor: var(--pf-v5-global--BorderColor--100);
-  /* Menu toggle */
+  --pf-v5-c-form-control--before--BorderRadius: 4px;
+  --pf-v5-c-form-control--after--BorderRadius: 4px;
+  --pf-v5-c-form-control--before--BorderTopColor: var(--pf-v5-global--BorderColor--100);
+  --pf-v5-c-form-control--before--BorderRightColor: var(--pf-v5-global--BorderColor--100);
+  --pf-v5-c-form-control--before--BorderBottomColor: var(--pf-v5-global--BorderColor--100);
+  --pf-v5-c-form-control--before--BorderLeftColor: var(--pf-v5-global--BorderColor--100);
+  --pf-v5-c-form-control--after--BorderBottomColor: var(--pf-v5-global--BorderColor--100);
+  --pf-v5-c-form-control--hover--after--BorderBottomColor: #419eda;
+  --pf-v5-c-form-control--focus--after--BorderBottomColor: #419eda;
+  /* Menu toggle: border also on pseudo-elements */
   --pf-v5-c-menu-toggle--BackgroundColor: #1e1e1e;
   --pf-v5-c-menu-toggle--Color: var(--pf-v5-global--Color--100);
-  --pf-v5-c-menu-toggle__controls--Color: var(--pf-v5-global--Color--200);
-  --pf-v5-c-menu-toggle__text--Color: var(--pf-v5-global--Color--100);
-  --pf-v5-c-menu-toggle__toggle-icon--Color: var(--pf-v5-global--Color--200);
   --pf-v5-c-menu-toggle--BorderRadius: 4px;
+  --pf-v5-c-menu-toggle--before--BorderRadius: 4px;
+  --pf-v5-c-menu-toggle--after--BorderRadius: 4px;
+  --pf-v5-c-menu-toggle--before--BorderTopColor: var(--pf-v5-global--BorderColor--100);
+  --pf-v5-c-menu-toggle--before--BorderRightColor: var(--pf-v5-global--BorderColor--100);
+  --pf-v5-c-menu-toggle--before--BorderBottomColor: var(--pf-v5-global--BorderColor--100);
+  --pf-v5-c-menu-toggle--before--BorderLeftColor: var(--pf-v5-global--BorderColor--100);
+  --pf-v5-c-menu-toggle__text--Color: var(--pf-v5-global--Color--100);
+  --pf-v5-c-menu-toggle__controls--Color: var(--pf-v5-global--Color--200);
+  --pf-v5-c-menu-toggle__toggle-icon--Color: var(--pf-v5-global--Color--200);
+  /* Menu / Select dropdown */
+  --pf-v5-c-menu--BackgroundColor: #2a2d30;
+  --pf-v5-c-menu--Color: var(--pf-v5-global--Color--100);
+  --pf-v5-c-menu__item--Color: var(--pf-v5-global--Color--100);
+  --pf-v5-c-menu__item--hover--BackgroundColor: #3c3f42;
+  --pf-v5-c-select__menu--BackgroundColor: #2a2d30;
+  --pf-v5-c-select__menu-item--Color: var(--pf-v5-global--Color--100);
+  --pf-v5-c-select__menu-item--hover--BackgroundColor: #3c3f42;
   /* Data list */
   --pf-v5-c-data-list--BackgroundColor: var(--pf-v5-global--BackgroundColor--200);
   --pf-v5-c-data-list--BorderColor: var(--pf-v5-global--BorderColor--100);
@@ -76,14 +95,11 @@
   --pf-v5-c-modal-box--BackgroundColor: var(--pf-v5-global--BackgroundColor--200);
   /* Title */
   --pf-v5-c-title--Color: var(--pf-v5-global--Color--100);
-  /* Toggle */
+  /* Toggle: selected state needs contrast */
   --pf-v5-c-toggle-group__button--BackgroundColor: #1e1e1e;
   --pf-v5-c-toggle-group__button--Color: var(--pf-v5-global--Color--100);
   --pf-v5-c-toggle-group__button--m-selected--BackgroundColor: #004080;
-  --pf-v5-c-toggle-group__button--m-selected--Color: var(--pf-v5-global--Color--100);
-  /* Select */
-  --pf-v5-c-select__menu--BackgroundColor: var(--pf-v5-global--BackgroundColor--300);
-  --pf-v5-c-select__menu-item--Color: var(--pf-v5-global--Color--100);
+  --pf-v5-c-toggle-group__button--m-selected--Color: #fff;
   /* Button */
   --pf-v5-c-button--m-link--Color: var(--pf-v5-global--link--Color);
   --pf-v5-c-button--m-plain--Color: var(--pf-v5-global--Color--200);
