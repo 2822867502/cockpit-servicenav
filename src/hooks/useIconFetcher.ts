@@ -25,63 +25,46 @@ export interface UseIconFetcherReturn {
  * Handles both Response-like objects (with .blob()) and raw response data.
  * Returns null on any failure — never throws.
  */
-async function fetchViaCockpitHttp(url: string): Promise<string | null> {
+async function fetchViaCockpitHttp(fullUrl: string): Promise<string | null> {
   const cockpit = (window as any).cockpit;
   if (!cockpit || typeof cockpit.http !== 'function') {
-    console.warn('[IconFetch] cockpit.http 不可用:', url);
+    console.warn('[IconFetch] cockpit.http 不可用');
     return null;
   }
 
   try {
-    const response = await cockpit.http(url, {
+    // cockpit.http() requires (hostPort, { path }), NOT a full URL.
+    // Parse the URL into host:port and path components.
+    const urlObj = new URL(fullUrl);
+    const hostPort = urlObj.host;        // e.g. "10.0.2.1:23333"
+    const requestPath = urlObj.pathname + urlObj.search; // e.g. "/favicon.ico"
+    console.log('[IconFetch] 请求 hostPort:', hostPort, 'path:', requestPath);
+
+    const response = await cockpit.http(hostPort, {
       method: 'GET',
-      headers: { Accept: 'image/x-icon,image/vnd.microsoft.icon,image/*' },
+      path: requestPath,
     });
 
     if (!response) {
-      console.warn('[IconFetch] 响应为空:', url);
+      console.warn('[IconFetch] 响应为空:', fullUrl);
       return null;
     }
 
     console.log('[IconFetch] 响应类型:', typeof response,
-      'instanceof ArrayBuffer:', response instanceof ArrayBuffer,
       '字节长度:', (response as any).byteLength || (response as any).length);
 
-    // Case 1: raw ArrayBuffer / Uint8Array (older Cockpit returns body directly)
-    if (response instanceof ArrayBuffer || response instanceof Uint8Array) {
-      const blob = new Blob([response], { type: 'image/x-icon' });
-      console.log('[IconFetch] ArrayBuffer → Blob size:', blob.size);
-      return blob.size > 0 ? URL.createObjectURL(blob) : null;
+    // Convert response to Blob (handles ArrayBuffer, string, Uint8Array, etc.)
+    let blob: Blob;
+    if (typeof response === 'string') {
+      blob = new Blob([response], { type: 'image/x-icon' });
+    } else {
+      blob = new Blob([response], { type: 'image/x-icon' });
     }
 
-    // Case 2: raw string (could be binary text or base64 from old Cockpit)
-    if (typeof response === 'string' && response.length > 0) {
-      const blob = new Blob([response], { type: 'image/x-icon' });
-      console.log('[IconFetch] string → Blob size:', blob.size);
-      return blob.size > 0 ? URL.createObjectURL(blob) : null;
-    }
-
-    // Case 3: response object with .blob() method (new Cockpit API)
-    if (response && typeof (response as any).blob === 'function') {
-      const blob = await (response as any).blob();
-      console.log('[IconFetch] .blob() → size:', blob?.size);
-      return (blob && blob.size > 0) ? URL.createObjectURL(blob) : null;
-    }
-
-    // Case 4: response.body (ArrayBuffer or string)
-    const body = (response as any).body;
-    if (body) {
-      const blob = new Blob([body], { type: 'image/x-icon' });
-      console.log('[IconFetch] .body → Blob size:', blob.size);
-      return blob.size > 0 ? URL.createObjectURL(blob) : null;
-    }
-
-    // Case 5: unknown format — try to convert whatever we got
-    console.warn('[IconFetch] 未知响应格式:', typeof response, Object.keys(response || {}));
-    const blob = new Blob([response], { type: 'image/x-icon' });
+    console.log('[IconFetch] Blob size:', blob.size);
     return blob.size > 0 ? URL.createObjectURL(blob) : null;
   } catch (e) {
-    console.warn('[IconFetch] 请求失败:', url, e);
+    console.warn('[IconFetch] 请求失败:', fullUrl, e);
     return null;
   }
 }

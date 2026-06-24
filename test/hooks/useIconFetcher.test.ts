@@ -95,9 +95,10 @@ describe('useIconFetcher', () => {
     });
 
     expect(result.current.iconSrc).toBe(mockObjectUrl);
+    // New calling convention: cockpit.http(hostPort, { method, path })
     expect((window as any).cockpit.http).toHaveBeenCalledWith(
-      'https://example.com/icon.png',
-      expect.objectContaining({ method: 'GET' })
+      'example.com',
+      expect.objectContaining({ method: 'GET', path: '/icon.png' })
     );
   });
 
@@ -119,15 +120,15 @@ describe('useIconFetcher', () => {
     expect(result.current.loading).toBe(false);
   });
 
-  it('passes resolved favicon URL to cockpit.http() for auto mode', async () => {
+  it('calls cockpit.http with correct hostPort and favicon path for auto mode', async () => {
     mockHttpSuccess();
     const svc = { ...baseService, iconType: 'auto' as const };
     renderHook(() => useIconFetcher(svc));
 
     await waitFor(() => {
       expect((window as any).cockpit.http).toHaveBeenCalledWith(
-        expect.stringContaining('favicon.ico'),
-        expect.anything()
+        'test-host:8080',
+        expect.objectContaining({ method: 'GET', path: '/favicon.ico' })
       );
     });
   });

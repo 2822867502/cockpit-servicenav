@@ -6,22 +6,23 @@
  * NO hardcoded colors.
  */
 
-/* ---- Dark-mode: transparent iframe lets parent Cockpit background through ---- */
-/* The plugin runs inside an iframe. Setting html/body/#root to transparent
- * allows the parent Cockpit page's dark background to show through,
- * rather than blocking it with a white iframe background. */
+/* ---- Dark-mode: force background to follow theme ---- */
+/* The plugin runs inside an iframe. Browser default body is white.
+ * We must explicitly set background to the theme variable with !important
+ * to override both browser defaults and PatternFly's internal defaults. */
 html, body, #root {
-  background-color: transparent !important;
+  background-color: var(--pf-global--BackgroundColor--100) !important;
 }
 
-/* Page component inherits the transparent background */
-.servicenav-page {
-  background-color: transparent;
+/* Force Page component to use theme background (not light-100 which stays white) */
+.servicenav-page,
+.pf-v5-c-page {
+  background-color: var(--pf-global--BackgroundColor--100) !important;
 }
 
-/* Card surfaces use PF variable for proper theme response */
+/* Card surfaces */
 .servicenav-card {
-  background-color: var(--pf-v5-global--BackgroundColor--200);
+  background-color: var(--pf-global--BackgroundColor--200);
 }
 
 /* ---- Layout ---- */
