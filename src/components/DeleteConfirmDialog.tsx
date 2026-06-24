@@ -7,7 +7,6 @@
 
 import React from 'react';
 import { Modal, Button } from '@patternfly/react-core';
-import { ExclamationTriangleIcon } from '@patternfly/react-icons';
 import type { ServiceEntry } from '../lib/types';
 import { _ } from '../lib/i18n';
 
@@ -28,14 +27,7 @@ export const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
   return (
     <Modal
       variant="small"
-      title={
-        <span>
-          <ExclamationTriangleIcon
-            style={{ color: 'var(--pf-v5-global--warning-color--100)', marginRight: 8 }}
-          />
-          {_('Delete Service')}
-        </span>
-      }
+      title={_('Delete Service')}
       titleIconVariant="warning"
       isOpen={true}
       onClose={onClose}

@@ -3,14 +3,28 @@
  * PF5 base.css does NOT include .pf-theme-dark rules — we provide them here.
  */
 
-/* ---- Dark-mode variable overrides (critical: PF5 base.css omits these) ---- */
+/* ---- Dark-mode variable overrides ---- */
 .pf-theme-dark {
-  --pf-v5-global--BackgroundColor--100: #151515;
-  --pf-v5-global--BackgroundColor--200: #1e1e1e;
+  /* Backgrounds */
+  --pf-v5-global--BackgroundColor--100: #0f1214;
+  --pf-v5-global--BackgroundColor--200: #1a1d21;
+  --pf-v5-global--BackgroundColor--300: #24282d;
+  /* Text */
   --pf-v5-global--Color--100: #e0e0e0;
   --pf-v5-global--Color--200: #b8bbbe;
+  --pf-v5-global--text--Color--100: #e0e0e0;
+  --pf-v5-global--text--Color--200: #b8bbbe;
+  /* Links & icons */
   --pf-v5-global--link--Color: #419eda;
   --pf-v5-global--icon--Color--regular: #b8bbbe;
+  --pf-v5-global--icon--Color--dark: #6a6e73;
+  /* Borders */
+  --pf-v5-global--BorderColor--100: #3c3f42;
+  --pf-v5-global--BorderColor--200: #2a2d30;
+  /* Cards */
+  --pf-v5-c-card--BackgroundColor: var(--pf-v5-global--BackgroundColor--200);
+  /* Page sections */
+  --pf-v5-c-page__main-section--BackgroundColor: var(--pf-v5-global--BackgroundColor--100);
 }
 
 /* ---- Foundation ---- */
