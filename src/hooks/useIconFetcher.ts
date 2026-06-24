@@ -53,15 +53,37 @@ async function fetchViaCockpitHttp(fullUrl: string): Promise<string | null> {
     console.log('[IconFetch] 响应类型:', typeof response,
       '字节长度:', (response as any).byteLength || (response as any).length);
 
-    // Convert response to Blob (handles ArrayBuffer, string, Uint8Array, etc.)
-    let blob: Blob;
-    if (typeof response === 'string') {
-      blob = new Blob([response], { type: 'image/x-icon' });
-    } else {
-      blob = new Blob([response], { type: 'image/x-icon' });
+    // Convert response to a usable image URL
+    // Case 1: newer Cockpit API — response has .blob() method
+    if (response && typeof (response as any).blob === 'function') {
+      const blob = await (response as any).blob();
+      console.log('[IconFetch] .blob() → size:', blob?.size);
+      return (blob && blob.size > 0) ? URL.createObjectURL(blob) : null;
     }
 
-    console.log('[IconFetch] Blob size:', blob.size);
+    // Case 2: raw ArrayBuffer / Uint8Array
+    if (response instanceof ArrayBuffer || response instanceof Uint8Array) {
+      const blob = new Blob([response], { type: 'image/x-icon' });
+      console.log('[IconFetch] ArrayBuffer → Blob size:', blob.size);
+      return blob.size > 0 ? URL.createObjectURL(blob) : null;
+    }
+
+    // String response: could be raw binary text OR base64-encoded data
+    if (typeof response === 'string' && response.length > 0) {
+      // If it looks like base64 (no HTML/XML markers), use as data URI
+      if (!response.startsWith('<') && !response.startsWith('﻿')) {
+        console.log('[IconFetch] string (base64?) → data URI, length:', response.length);
+        return `data:image/x-icon;base64,${response}`;
+      }
+      // Otherwise try as binary string → Blob
+      const blob = new Blob([response], { type: 'image/x-icon' });
+      console.log('[IconFetch] string → Blob size:', blob.size);
+      return blob.size > 0 ? URL.createObjectURL(blob) : null;
+    }
+
+    // Fallback: try constructing Blob from whatever we got
+    const blob = new Blob([response], { type: 'image/x-icon' });
+    console.log('[IconFetch] fallback → Blob size:', blob.size);
     return blob.size > 0 ? URL.createObjectURL(blob) : null;
   } catch (e) {
     console.warn('[IconFetch] 请求失败:', fullUrl, e);

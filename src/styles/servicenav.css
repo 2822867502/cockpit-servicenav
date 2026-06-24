@@ -1,28 +1,17 @@
 /**
  * Styles for the Cockpit servicenav plugin.
- *
- * ALL colors use PatternFly CSS custom properties so that dark mode
- * (pf-theme-dark class on <html>) works automatically.
+ * ALL colors use PatternFly 6 CSS tokens for dark mode support.
  * NO hardcoded colors.
  */
 
-/* ---- Dark-mode: force background to follow theme ---- */
-/* The plugin runs inside an iframe. Browser default body is white.
- * We must explicitly set background to the theme variable with !important
- * to override both browser defaults and PatternFly's internal defaults. */
+/* ---- Foundation: force background to PF6 tokens ---- */
 html, body, #root {
-  background-color: var(--pf-global--BackgroundColor--100) !important;
+  background-color: var(--pf-t--global--background--color--primary--default) !important;
 }
 
-/* Force Page component to use theme background (not light-100 which stays white) */
 .servicenav-page,
 .pf-v5-c-page {
-  background-color: var(--pf-global--BackgroundColor--100) !important;
-}
-
-/* Card surfaces */
-.servicenav-card {
-  background-color: var(--pf-global--BackgroundColor--200);
+  background-color: var(--pf-t--global--background--color--primary--default) !important;
 }
 
 /* ---- Layout ---- */
@@ -36,6 +25,7 @@ html, body, #root {
 
 .servicenav-card {
   transition: box-shadow 0.2s ease, transform 0.15s ease;
+  background-color: var(--pf-t--global--background--color--secondary--default);
 }
 
 .servicenav-card:hover {
@@ -49,7 +39,7 @@ html, body, #root {
   width: 64px;
   height: 64px;
   border-radius: var(--pf-v5-global--BorderRadius--lg);
-  background: var(--pf-v5-global--BackgroundColor--200);
+  background: var(--pf-t--global--background--color--secondary--default);
   overflow: hidden;
 }
 
@@ -62,7 +52,7 @@ html, body, #root {
 .servicenav-card__icon svg {
   width: 36px;
   height: 36px;
-  color: var(--pf-v5-global--icon--Color--regular);
+  color: var(--pf-t--global--icon--color--regular);
 }
 
 .servicenav-card__icon--sm {
@@ -90,7 +80,7 @@ html, body, #root {
   gap: var(--pf-v5-global--spacer--xs);
   margin-top: var(--pf-v5-global--spacer--sm);
   font-size: var(--pf-v5-global--FontSize--sm);
-  color: var(--pf-v5-global--link--Color);
+  color: var(--pf-t--global--text--color--link--default);
   cursor: pointer;
 }
 
@@ -119,7 +109,7 @@ html, body, #root {
   justify-content: center;
   width: 100%;
   height: 100%;
-  color: var(--pf-v5-global--icon--Color--regular);
+  color: var(--pf-t--global--icon--color--regular);
 }
 
 /* Empty state */
@@ -136,10 +126,10 @@ html, body, #root {
 /* Form URL preview */
 .servicenav-form__url-preview {
   padding: var(--pf-v5-global--spacer--sm);
-  background: var(--pf-v5-global--BackgroundColor--200);
+  background: var(--pf-t--global--background--color--secondary--default);
   border-radius: var(--pf-v5-global--BorderRadius--sm);
   font-size: var(--pf-v5-global--FontSize--sm);
-  color: var(--pf-v5-global--Color--200);
+  color: var(--pf-t--global--text--color--subtle);
   margin-top: var(--pf-v5-global--spacer--xs);
   word-break: break-all;
 }
