@@ -207,6 +207,23 @@ To test the UI during development:
 - **Module style**: ES modules, functional components, custom hooks
 - **Naming**: PascalCase for components, camelCase for functions/variables, kebab-case for files
 
+### Internationalization (i18n)
+
+The plugin supports English and Chinese (Simplified), with English as the fallback language.
+
+**Language Detection Priority:**
+1. `cockpit.language` — Cockpit's user preference (if available)
+2. `navigator.language` — Browser language setting
+3. Fallback to English
+
+**How it works:**
+- All user-visible strings are wrapped with the `_()` function (`import { _ } from '../lib/i18n'`)
+- Translation maps are embedded directly in `src/lib/i18n.ts` — no build-time PO compilation needed
+- To add a new language: add a new translation map to `i18n.ts` following the existing `zhCN` pattern
+- To add a new translatable string: add the `_()` call in the component, then add the translation pair to `i18n.ts`
+
+**Important:** `initI18n()` must be called once at startup before any component renders. This is handled in `src/index.tsx`.
+
 ## Testing
 
 ```bash

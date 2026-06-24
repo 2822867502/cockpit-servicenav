@@ -81,7 +81,11 @@ const App: React.FC = () => {
 
   const confirmDelete = useCallback(async () => {
     if (deleteTarget) {
-      await removeService(deleteTarget.id);
+      try {
+        await removeService(deleteTarget.id);
+      } catch {
+        // Error already set in useServices state; prevent unhandled rejection
+      }
       setDeleteTarget(null);
     }
   }, [deleteTarget, removeService]);
@@ -93,10 +97,14 @@ const App: React.FC = () => {
   // --- Save handler ---
   const handleSave = useCallback(
     async (data: ServiceFormData) => {
-      if (modal.type === 'add') {
-        await addService(data);
-      } else if (modal.type === 'edit' && modal.service) {
-        await updateService(modal.service.id, data);
+      try {
+        if (modal.type === 'add') {
+          await addService(data);
+        } else if (modal.type === 'edit' && modal.service) {
+          await updateService(modal.service.id, data);
+        }
+      } catch {
+        // Error already set in useServices state; ServiceForm keeps modal open
       }
     },
     [modal, addService, updateService]

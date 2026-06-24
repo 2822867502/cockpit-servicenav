@@ -2,8 +2,8 @@
  * Entry point for the servicenav Cockpit plugin.
  *
  * Bootstraps the React application inside the Cockpit shell.
- * In development mode (no Cockpit runtime), loads the mock layer
- * so the plugin can be developed and tested standalone.
+ * Uses async bootstrap to ensure the mock Cockpit layer is loaded
+ * before App renders in development mode.
  */
 
 import React from 'react';
@@ -15,37 +15,37 @@ import '@patternfly/react-core/dist/styles/base.css';
 // Import plugin-specific styles
 import './styles/servicenav.css';
 
-// Import i18n (initializes _() globally)
-import './lib/i18n';
+// Import i18n (initializes language detection)
+import { initI18n } from './lib/i18n';
 
-// Import mock cockpit for development
-// In production, cockpit is loaded by the shell before this script runs
-if (typeof (window as any).cockpit === 'undefined') {
-  import('./lib/mockCockpit').then(() => {
+// Static import — no React.lazy, to avoid race conditions with esbuild IIFE bundling
+import App from './app';
+
+async function bootstrap(): Promise<void> {
+  // In development mode (no Cockpit shell), load the mock layer before rendering.
+  // The mock provides a localStorage-backed implementation of cockpit.file() etc.
+  // This MUST complete before App mounts, because useServices immediately calls
+  // cockpit.file() on mount.
+  if (typeof (window as any).cockpit === 'undefined') {
+    await import('./lib/mockCockpit');
     console.log('[servicenav] Mock cockpit loaded for development.');
-  });
-}
+  }
 
-// Lazy-load App to ensure mock is initialized first
-const App = React.lazy(() => import('./app'));
+  // Initialize i18n (detects language from cockpit.language or navigator.language)
+  initI18n();
 
-// Render
-const container = document.getElementById('root');
-if (container) {
-  const root = createRoot(container);
-  root.render(
-    <React.StrictMode>
-      <React.Suspense
-        fallback={
-          <div style={{ padding: '2rem', textAlign: 'center' }}>
-            Loading Service Navigation...
-          </div>
-        }
-      >
+  // Render the app
+  const container = document.getElementById('root');
+  if (container) {
+    const root = createRoot(container);
+    root.render(
+      <React.StrictMode>
         <App />
-      </React.Suspense>
-    </React.StrictMode>
-  );
-} else {
-  console.error('[servicenav] Root element not found. Cannot mount React app.');
+      </React.StrictMode>
+    );
+  } else {
+    console.error('[servicenav] Root element not found. Cannot mount React app.');
+  }
 }
+
+bootstrap();
