@@ -42,7 +42,7 @@ html, body, #root {
 .pf-theme-dark label {
   color: #e0e0e0;
 }
-/* Form inputs — !important to beat browser autofill + PF defaults */
+/* Form inputs — override ALL border sides (PF5 uses different colors per side) */
 .pf-theme-dark .pf-v5-c-form-control,
 .pf-theme-dark .pf-v5-c-form-control > input,
 .pf-theme-dark input[type="text"],
@@ -50,11 +50,23 @@ html, body, #root {
 .pf-theme-dark textarea {
   background-color: #2a2d30 !important;
   color: #e0e0e0 !important;
-  border: 1px solid #3c3f42 !important;
+  border-top: 1px solid #3c3f42 !important;
+  border-right: 1px solid #3c3f42 !important;
+  border-bottom: 1px solid #3c3f42 !important;
+  border-left: 1px solid #3c3f42 !important;
   box-shadow: none !important;
   border-radius: 6px !important;
+  outline: none !important;
 }
-/* Light mode — softer borders too */
+.pf-theme-dark .pf-v5-c-form-control:focus-within,
+.pf-theme-dark .pf-v5-c-form-control > input:focus,
+.pf-theme-dark input[type="text"]:focus,
+.pf-theme-dark input[type="url"]:focus,
+.pf-theme-dark textarea:focus {
+  border-color: #419eda !important;
+  border-bottom-color: #419eda !important;
+}
+/* Light mode — rounded */
 .pf-v5-c-form-control,
 .pf-v5-c-form-control > input,
 input[type="text"],
