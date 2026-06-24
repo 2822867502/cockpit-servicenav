@@ -20,6 +20,7 @@ import { initI18n } from './lib/i18n';
 
 // Static import — no React.lazy, to avoid race conditions with esbuild IIFE bundling
 import App from './app';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 async function bootstrap(): Promise<void> {
   // In development mode (no Cockpit shell), load the mock layer before rendering.
@@ -40,7 +41,9 @@ async function bootstrap(): Promise<void> {
     const root = createRoot(container);
     root.render(
       <React.StrictMode>
-        <App />
+        <ErrorBoundary>
+          <App />
+        </ErrorBoundary>
       </React.StrictMode>
     );
   } else {

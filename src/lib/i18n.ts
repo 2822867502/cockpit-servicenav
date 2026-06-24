@@ -94,6 +94,11 @@ const zhCN: Record<string, string> = {
   // Loading & error
   'Loading services': '正在加载服务',
   'Error': '错误',
+
+  // Error boundary
+  'An unexpected error occurred while loading the service navigation panel.':
+    '加载服务导航面板时发生意外错误。',
+  'Retry': '重试',
 };
 
 // All supported language maps
@@ -118,17 +123,27 @@ let currentLang = 'en';
  *   3. Falls back to 'en'
  */
 function detectLanguage(): string {
-  // 1. Check Cockpit's language setting
+  // 1. Check Cockpit's language setting (most authoritative)
   const cockpit = (window as any).cockpit;
   if (cockpit && typeof cockpit.language === 'string' && cockpit.language) {
+    console.log('[servicenav] Language from cockpit.language:', cockpit.language);
     return cockpit.language;
   }
 
   // 2. Check browser's navigator.language
   if (typeof navigator !== 'undefined' && navigator.language) {
-    return navigator.language;
+    const browserLang = navigator.language;
+    console.log('[servicenav] Language from navigator.language:', browserLang);
+    // Normalize Chinese variants: zh-CN, zh-Hans, zh-Hant, zh-TW, zh-HK → zh_CN
+    if (/^zh/i.test(browserLang)) {
+      console.log('[servicenav] Detected Chinese browser, using zh_CN translations');
+      return 'zh_CN';
+    }
+    return browserLang;
   }
 
+  // 3. Fallback
+  console.log('[servicenav] No language source detected, falling back to en');
   return 'en';
 }
 

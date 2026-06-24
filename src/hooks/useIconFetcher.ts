@@ -1,25 +1,33 @@
 /**
  * useIconFetcher hook — handles service icon loading with fallback chain.
  *
- * Implements three icon resolution strategies:
- * 1. 'url': Load from user-provided icon URL
- * 2. 'auto': Attempt to load favicon.ico from the service's resolved URL
- * 3. 'none': Skip fetching, use default icon immediately
+ * IMPORTANT — TLS certificate handling:
+ * This plugin may reference services on the same host using self-signed
+ * certificates (e.g., https://host:8443). Browser <img> tags for these URLs
+ * can trigger Cockpit's TLS proxy, which shows "Oops" on handshake failure.
  *
- * Uses <img> elements for loading (not fetch) to avoid CORS restrictions.
- * Each attempt has a 5-second timeout before falling back.
- * Results are cached in state per service ID.
+ * Strategy to avoid TLS-triggered "Oops":
+ *   1. Use Cockpit's native `cockpit.http()` API first — it handles errors
+ *      as Promise rejections (catchable) rather than shell-level alerts.
+ *   2. On failure, fall back to <img> with a very short timeout.
+ *   3. On any failure, silently use the default icon — NEVER propagate errors.
+ *
+ * Icon resolution priority:
+ *   1. 'none': Skip all network requests, use default icon immediately
+ *   2. 'url': Try user-provided icon URL
+ *   3. 'auto': Try /favicon.ico from the service's resolved URL
+ *   4. All failures → default SVG icon (silent fallback)
  */
 
 import { useState, useEffect, useRef } from 'react';
 import type { ServiceEntry } from '../lib/types';
 import { resolveServiceUrl } from '../lib/url';
 
-/** Timeout in milliseconds for icon fetch attempts */
-const ICON_FETCH_TIMEOUT = 5000;
+/** Timeout in milliseconds for favicon fetch attempts (short to avoid blocking) */
+const ICON_FETCH_TIMEOUT_MS = 3000;
 
 export interface UseIconFetcherReturn {
-  /** Resolved icon source URL, or null if default should be used */
+  /** Resolved icon source URL (data: or https:), or null for default */
   iconSrc: string | null;
   /** True while icon is being loaded */
   loading: boolean;
@@ -28,57 +36,100 @@ export interface UseIconFetcherReturn {
 }
 
 /**
- * Try to load an icon from a URL, with timeout.
+ * Try to load an icon via Cockpit's native HTTP client.
  *
- * @param url - The icon URL to try
- * @param signal - AbortController signal for cancellation
- * @returns Promise resolving to true if loaded successfully
+ * `cockpit.http()` routes through Cockpit's bridge, which handles TLS
+ * errors as catchable Promise rejections (unlike <img> tags whose
+ * network errors may surface as shell-level "Oops" alerts).
+ *
+ * Returns a data: URI on success, or null on failure.
  */
-function tryLoadIcon(url: string, signal: AbortSignal): Promise<boolean> {
+async function tryLoadViaCockpitHttp(url: string, signal: AbortSignal): Promise<string | null> {
+  const cockpit = (window as any).cockpit;
+  if (!cockpit || typeof cockpit.http !== 'function') {
+    return null; // cockpit.http not available, caller will fall back
+  }
+
+  try {
+    // cockpit.http() returns a Response-like object with .blob()
+    const response = await cockpit.http(url, {
+      method: 'GET',
+      headers: { Accept: 'image/*' },
+    });
+
+    if (signal.aborted) return null;
+
+    // cockpit.http responses have .blob() for binary data
+    if (response && typeof response.blob === 'function') {
+      const blob = await response.blob();
+      if (signal.aborted) return null;
+
+      if (blob && blob.size > 0) {
+        // Convert blob to data: URI so <img> can display it without
+        // making another network request that hits the TLS proxy
+        return URL.createObjectURL(blob);
+      }
+    }
+    return null;
+  } catch {
+    // cockpit.http failed (TLS error, timeout, unreachable, etc.)
+    // This is expected for self-signed certs — silently return null
+    return null;
+  }
+}
+
+/**
+ * Try to load an icon via <img> element (direct browser request).
+ *
+ * This is the fallback when cockpit.http() is unavailable (dev mode).
+ * Uses onerror/onload handlers with a timeout.
+ *
+ * NOTE: In production Cockpit, <img> requests may go through Cockpit's
+ * reverse proxy and trigger TLS handshake errors. This function is
+ * used ONLY as a fallback when cockpit.http() is not available.
+ */
+function tryLoadViaImageTag(url: string, signal: AbortSignal): Promise<string | null> {
   return new Promise((resolve) => {
     const img = new Image();
     let settled = false;
 
-    const cleanup = () => {
+    const finish = (result: string | null) => {
       if (!settled) {
         settled = true;
         img.onload = null;
         img.onerror = null;
+        if (result && result.startsWith('blob:')) {
+          // Don't revoke — the <img> tag still needs it
+        }
+        resolve(result);
       }
     };
 
-    const timeoutId = setTimeout(() => {
-      cleanup();
-      resolve(false);
-    }, ICON_FETCH_TIMEOUT);
+    const timeoutId = setTimeout(() => finish(null), ICON_FETCH_TIMEOUT_MS);
 
     signal.addEventListener('abort', () => {
       clearTimeout(timeoutId);
-      cleanup();
-      resolve(false);
-    });
+      finish(null);
+    }, { once: true });
 
     img.onload = () => {
       clearTimeout(timeoutId);
-      cleanup();
-      resolve(true);
+      finish(url); // Return the original URL on success
     };
 
     img.onerror = () => {
       clearTimeout(timeoutId);
-      cleanup();
-      resolve(false);
+      finish(null);
     };
 
+    // Set crossOrigin to avoid CORS issues when reading image data
+    img.crossOrigin = 'anonymous';
     img.src = url;
   });
 }
 
 /**
  * Get the favicon URL for a service.
- *
- * For absolute URLs, appends /favicon.ico to the origin.
- * For relative ports, constructs the full URL and appends /favicon.ico.
  */
 function getFaviconUrl(service: ServiceEntry): string {
   const resolvedUrl = resolveServiceUrl(service.url);
@@ -91,29 +142,58 @@ function getFaviconUrl(service: ServiceEntry): string {
 }
 
 /**
+ * Primary icon loading function — tries to load an icon URL, returns
+ * a usable src string or null (use default icon).
+ *
+ * Strategy:
+ *   1. Try cockpit.http() first (handles TLS errors as catchable rejections)
+ *   2. Fall back to <img> tag (for dev mode where cockpit.http isn't available)
+ *   3. Any failure → return null
+ *
+ * ALL errors are silently caught. This function NEVER throws.
+ */
+async function loadIcon(url: string, signal: AbortSignal): Promise<string | null> {
+  // Primary: use cockpit.http() — TLS errors are catchable
+  const httpResult = await tryLoadViaCockpitHttp(url, signal);
+  if (httpResult) return httpResult;
+  if (signal.aborted) return null;
+
+  // Fallback: <img> tag (for dev mode or when cockpit.http is unavailable)
+  const imgResult = await tryLoadViaImageTag(url, signal);
+  if (imgResult) return imgResult;
+
+  return null; // All attempts failed
+}
+
+/**
  * Hook to manage icon loading for a service.
  *
- * The fetch chain:
- * 1. If iconType === 'url' and iconUrl is set, try the user-provided URL
- * 2. If iconType === 'auto', try /favicon.ico from the service's origin
- * 3. Fall back to null (UI renders default SVG)
- *
- * @param service - The service to fetch an icon for
- * @returns Icon state (src, loading, error)
+ * On any failure (TLS, timeout, 404, unreachable), silently falls back
+ * to null — the ServiceIcon component renders the default SVG.
+ * No errors are ever thrown or propagated.
  */
 export function useIconFetcher(service: ServiceEntry): UseIconFetcherReturn {
   const [iconSrc, setIconSrc] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(service.iconType !== 'none');
   const [error, setError] = useState<boolean>(false);
   const abortRef = useRef<AbortController | null>(null);
+  const mountedRef = useRef<boolean>(true);
 
   useEffect(() => {
-    // Abort any previous fetch
+    mountedRef.current = true;
+
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    // Abort any in-flight fetch from previous service
     if (abortRef.current) {
       abortRef.current.abort();
     }
 
-    // Reset state for new service
+    // Reset state for the new service
     setIconSrc(null);
     setError(false);
 
@@ -121,49 +201,54 @@ export function useIconFetcher(service: ServiceEntry): UseIconFetcherReturn {
     abortRef.current = controller;
 
     const fetchIcon = async () => {
-      // Case 1: No icon requested — use default
-      if (service.iconType === 'none') {
+      try {
+        // Case 1: No icon requested — use default immediately, no network
+        if (service.iconType === 'none') {
+          setLoading(false);
+          return;
+        }
+
+        // Case 2: User-provided custom icon URL
+        if (service.iconType === 'url' && service.iconUrl) {
+          setLoading(true);
+          const result = await loadIcon(service.iconUrl, controller.signal);
+          if (!mountedRef.current || controller.signal.aborted) return;
+
+          if (result) {
+            setIconSrc(result);
+          } else {
+            setError(true);
+          }
+          setLoading(false);
+          return;
+        }
+
+        // Case 3: Auto-fetch /favicon.ico from the service
+        if (service.iconType === 'auto') {
+          setLoading(true);
+          const faviconUrl = getFaviconUrl(service);
+          const result = await loadIcon(faviconUrl, controller.signal);
+          if (!mountedRef.current || controller.signal.aborted) return;
+
+          if (result) {
+            setIconSrc(result);
+          } else {
+            setError(true);
+          }
+          setLoading(false);
+          return;
+        }
+
+        // Fallback: no icon source
         setLoading(false);
-        return;
-      }
-
-      // Case 2: User-provided icon URL
-      if (service.iconType === 'url' && service.iconUrl) {
-        setLoading(true);
-        const success = await tryLoadIcon(service.iconUrl, controller.signal);
-        if (success && !controller.signal.aborted) {
-          setIconSrc(service.iconUrl);
-          setLoading(false);
-          return;
-        }
-        // Fall through to default if URL failed and not aborted
-        if (!controller.signal.aborted) {
+      } catch (_unused) {
+        // Catch ANY unexpected error — never let it propagate.
+        // The default SVG icon will be shown instead.
+        if (mountedRef.current && !controller.signal.aborted) {
           setError(true);
           setLoading(false);
         }
-        return;
       }
-
-      // Case 3: Auto-fetch favicon
-      if (service.iconType === 'auto') {
-        setLoading(true);
-        const faviconUrl = getFaviconUrl(service);
-        const success = await tryLoadIcon(faviconUrl, controller.signal);
-        if (success && !controller.signal.aborted) {
-          setIconSrc(faviconUrl);
-          setLoading(false);
-          return;
-        }
-        // Fall through to default if favicon failed
-        if (!controller.signal.aborted) {
-          setError(true);
-          setLoading(false);
-        }
-        return;
-      }
-
-      // Default: no source
-      setLoading(false);
     };
 
     fetchIcon();

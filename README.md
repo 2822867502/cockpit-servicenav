@@ -241,6 +241,55 @@ npm test
 
 Tests use a full mock of the `cockpit` global API and `window.location`. No real Cockpit installation is needed for testing.
 
+## Troubleshooting
+
+### Icon Auto-Fetch and TLS Certificate Errors
+
+The plugin's "auto-fetch favicon" feature attempts to load `/favicon.ico` from each configured service URL. When a service uses a **self-signed TLS certificate** (common for internal services on non-standard ports), Cockpit's TLS proxy (`cockpit-tls`) may log handshake failures like:
+
+```
+cockpit-tls[PID]: gnutls_handshake failed: A TLS fatal alert has been received.
+```
+
+**How the plugin handles this (fallback strategy):**
+
+The icon loading uses a three-layer defense:
+
+| Layer | Method | Error Handling |
+|---|---|---|
+| 1. Primary | `cockpit.http()` — Cockpit's native HTTP client | Promise rejection → caught silently |
+| 2. Fallback | `<img>` tag with `onerror` handler | Image load failure → caught silently |
+| 3. Default | Inline SVG cube icon | Always works (no network request) |
+
+**Key design principle**: ALL icon fetch failures are **silently caught**. The plugin NEVER propagates network errors to Cockpit's global error handler. Even if a target service is completely unreachable, uses a self-signed cert, or returns a 404, the plugin page renders normally — only the individual service's icon defaults to the cube icon.
+
+**If you see "Oops" errors related to icon fetching:**
+
+1. Check `journalctl -u cockpit -f` for `cockpit-tls` TLS errors
+2. Set the affected service's icon type to **"Default icon"** (`'none'`) — this disables all network requests for that service
+3. Alternatively, provide a publicly-accessible icon URL via **"Custom icon URL"** (`'url'`) pointing to an image hosted on a trusted server
+4. Verify your Cockpit CSP allows `img-src` for the target domains
+
+**If you see "Oops" errors NOT related to icons:**
+
+1. Check the browser console (F12 → Console) for JavaScript errors
+2. Verify `/etc/cockpit/servicenav.conf` exists and is readable by Cockpit
+3. Check the config file is valid JSON: `python3 -m json.tool /etc/cockpit/servicenav.conf`
+4. The plugin has a React Error Boundary that catches rendering errors and shows a "Retry" button instead of crashing
+
+### Language Not Switching to Chinese
+
+The plugin detects language in this order:
+1. `cockpit.language` (set by Cockpit shell)
+2. `navigator.language` (browser language setting)
+3. Falls back to English
+
+To verify language detection, open the browser console and look for `[servicenav] Language from ...` log messages.
+
+To force Chinese:
+- Set your browser's preferred language to Chinese (Settings → Languages → Chinese)
+- Or verify Cockpit's language is set to `zh_CN` in Cockpit's user settings
+
 ## License
 
 MIT License

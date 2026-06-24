@@ -116,6 +116,11 @@ const mockCockpit = {
 
   language: 'en',
 
+  // Mock cockpit.http() — simulates icon fetch through Cockpit's bridge.
+  // Default: fails with an error (to test fallback path).
+  // Override with mockCockpit.http.mockResolvedValue(...) for success tests.
+  http: jest.fn().mockRejectedValue(new Error('Simulated TLS handshake failure')),
+
   jump: jest.fn(),
 
   location: {

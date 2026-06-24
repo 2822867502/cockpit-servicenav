@@ -137,6 +137,21 @@ const mockCockpit = {
     encode: (_path: any, _options?: any) => '',
   },
 
+  // Mock cockpit.http() — tries fetch, falls back gracefully on failure.
+  // In dev mode, the browser makes the request directly (no Cockpit proxy).
+  http: async (url: string, _options?: any) => {
+    try {
+      const response = await fetch(url, { signal: AbortSignal.timeout(3000) });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const blob = await response.blob();
+      return { blob: () => Promise.resolve(blob), status: response.status };
+    } catch {
+      throw new Error('Failed to fetch icon');
+    }
+  },
+
   jump: (_path: string, _host?: string) => {
     console.log('[mock] cockpit.jump:', _path, _host);
   },
