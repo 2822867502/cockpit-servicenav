@@ -270,7 +270,21 @@ The icon loading uses a three-layer defense:
 3. Alternatively, provide a publicly-accessible icon URL via **"Custom icon URL"** (`'url'`) pointing to an image hosted on a trusted server
 4. Verify your Cockpit CSP allows `img-src` for the target domains
 
-**If you see "Oops" errors NOT related to icons:**
+**If you see `TypeError: object is not iterable (cannot read property Symbol(Symbol.iterator))`:**
+
+This error occurs when the configuration file `/etc/cockpit/servicenav.conf` has a malformed `services` field — specifically when `services` is a JSON object (`{"0": {...}}`) instead of a JSON array (`[{...}]`). This can happen if the file is manually edited incorrectly.
+
+**Root cause**: The plugin uses JavaScript spread syntax (`[...services, newItem]`) and array methods (`.map()`, `.filter()`) which require iterable values. A plain object is not iterable in JavaScript, so spreading it inside `[...]` throws this error.
+
+**Fix**:
+1. Check your config file: `cat /etc/cockpit/servicenav.conf | python3 -m json.tool`
+2. Ensure `"services"` is an array (`[...]`), not an object (`{...}`)
+3. Valid: `"services": [{"id": "...", "name": "Grafana", ...}]`
+4. Invalid: `"services": {"0": {"id": "...", ...}}`
+
+The plugin now includes `ensureArray()` guards at all data boundaries (v2.1+), which silently coerces non-array values to empty arrays, preventing the crash even with malformed config files.
+
+**If you see "Oops" errors NOT related to icons or iteration:**
 
 1. Check the browser console (F12 → Console) for JavaScript errors
 2. Verify `/etc/cockpit/servicenav.conf` exists and is readable by Cockpit

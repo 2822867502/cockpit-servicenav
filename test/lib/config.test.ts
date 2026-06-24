@@ -9,6 +9,7 @@ import {
   createDefaultConfig,
   createServiceEntry,
   generateId,
+  ensureArray,
 } from '../../src/lib/config';
 import { setMockConfig, getMockConfig, resetMockConfig } from '../__mocks__/cockpit';
 import type { ServicenavConfig } from '../../src/lib/types';
@@ -187,5 +188,95 @@ describe('generateId', () => {
   it('returns unique ids on successive calls', () => {
     const ids = new Set(Array.from({ length: 100 }, () => generateId()));
     expect(ids.size).toBe(100);
+  });
+});
+
+describe('ensureArray', () => {
+  it('returns the input if it is already an array', () => {
+    const arr = [1, 2, 3];
+    expect(ensureArray(arr)).toBe(arr);
+  });
+
+  it('returns empty array for undefined', () => {
+    expect(ensureArray(undefined)).toEqual([]);
+  });
+
+  it('returns empty array for null', () => {
+    expect(ensureArray(null)).toEqual([]);
+  });
+
+  it('returns empty array for a plain object (most common malformed case)', () => {
+    // Simulates {"0": {...}, "1": {...}} from malformed JSON
+    const obj = { '0': { id: 'x' }, '1': { id: 'y' } };
+    expect(ensureArray(obj)).toEqual([]);
+  });
+
+  it('returns empty array for a number', () => {
+    expect(ensureArray(42)).toEqual([]);
+  });
+
+  it('returns empty array for a string', () => {
+    expect(ensureArray('not-an-array')).toEqual([]);
+  });
+
+  it('returns empty array for a boolean', () => {
+    expect(ensureArray(true)).toEqual([]);
+  });
+
+  it('returns custom default when provided', () => {
+    const fallback = [{ id: 'fallback' }];
+    expect(ensureArray(null, fallback)).toBe(fallback);
+  });
+});
+
+describe('readConfig with malformed data', () => {
+  it('survives services being a plain object (not an array)', async () => {
+    setMockConfig({
+      version: 1,
+      viewMode: 'grid',
+      services: { '0': { id: 'x', name: 'X' } }, // malformed — object instead of array
+    });
+
+    const { config } = await readConfig();
+    // Should normalize to empty array without crashing
+    expect(Array.isArray(config.services)).toBe(true);
+    expect(config.services).toEqual([]);
+  });
+
+  it('survives services being null', async () => {
+    setMockConfig({
+      version: 1,
+      viewMode: 'grid',
+      services: null,
+    });
+
+    const { config } = await readConfig();
+    expect(Array.isArray(config.services)).toBe(true);
+  });
+
+  it('survives a service entry being null inside the array', async () => {
+    setMockConfig({
+      version: 1,
+      viewMode: 'grid',
+      services: [
+        { id: 'valid', name: 'Valid', url: '8080', iconType: 'auto', iconUrl: null, description: '', createdAt: '', updatedAt: '' },
+        null, // malformed entry
+      ],
+    });
+
+    const { config } = await readConfig();
+    expect(config.services.length).toBe(2);
+    // First entry preserved
+    expect(config.services[0].name).toBe('Valid');
+    // Second entry normalized to a safe object
+    expect(config.services[1].id).toBeTruthy();
+    expect(config.services[1].name).toBe('');
+  });
+
+  it('survives completely missing version field', async () => {
+    setMockConfig({ services: [] });
+    const { config } = await readConfig();
+    expect(config.version).toBe(1);
+    expect(config.viewMode).toBe('grid');
   });
 });

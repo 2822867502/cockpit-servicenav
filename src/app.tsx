@@ -60,12 +60,15 @@ const App: React.FC = () => {
     setModal({ type: 'add' });
   }, []);
 
+  // Safe accessor — services could be corrupted in state
+  const safeServices = Array.isArray(services) ? services : [];
+
   const openEditModal = useCallback((id: string) => {
-    const service = services.find((s) => s.id === id);
+    const service = safeServices.find((s) => s.id === id);
     if (service) {
       setModal({ type: 'edit', service });
     }
-  }, [services]);
+  }, [safeServices]);
 
   const closeModal = useCallback(() => {
     setModal({ type: null });
@@ -73,11 +76,11 @@ const App: React.FC = () => {
 
   // --- Delete handlers ---
   const requestDelete = useCallback((id: string) => {
-    const service = services.find((s) => s.id === id);
+    const service = safeServices.find((s) => s.id === id);
     if (service) {
       setDeleteTarget(service);
     }
-  }, [services]);
+  }, [safeServices]);
 
   const confirmDelete = useCallback(async () => {
     if (deleteTarget) {
@@ -162,17 +165,17 @@ const App: React.FC = () => {
 
       {/* Content */}
       <PageSection>
-        {services.length === 0 ? (
+        {safeServices.length === 0 ? (
           <EmptyState onAddService={openAddModal} />
         ) : viewMode === 'grid' ? (
           <ServiceGrid
-            services={services}
+            services={safeServices}
             onEdit={openEditModal}
             onDelete={requestDelete}
           />
         ) : (
           <ServiceList
-            services={services}
+            services={safeServices}
             onEdit={openEditModal}
             onDelete={requestDelete}
           />

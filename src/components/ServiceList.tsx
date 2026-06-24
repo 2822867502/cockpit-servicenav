@@ -20,9 +20,10 @@ export interface ServiceListProps {
 }
 
 export const ServiceList: React.FC<ServiceListProps> = ({ services, onEdit, onDelete }) => {
+  const safeServices = Array.isArray(services) ? services : [];
   return (
     <DataList aria-label="Service navigation list" isCompact>
-      {services.map((service) => (
+      {safeServices.map((service) => (
         <ServiceListItem
           key={service.id}
           service={service}

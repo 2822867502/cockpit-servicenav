@@ -13,6 +13,7 @@ import {
   watchConfig,
   createServiceEntry,
   generateId,
+  ensureArray,
 } from '../lib/config';
 
 export interface UseServicesReturn {
@@ -53,7 +54,7 @@ export function useServices(): UseServicesReturn {
     try {
       setLoading(true);
       const { config } = await readConfig();
-      setServices(config.services || []);
+      setServices(ensureArray<ServiceEntry>(config.services));
       setViewModeState(config.viewMode === 'list' ? 'list' : 'grid');
       setError(null);
     } catch (err: any) {
@@ -67,9 +68,12 @@ export function useServices(): UseServicesReturn {
   useEffect(() => {
     refresh();
 
-    // Watch for external changes to the config file
+    // Watch for external changes to the config file.
+    // CRITICAL: use ensureArray() — config.services could be a non-array
+    // object from a malformed/corrupted config file, which would cause
+    // "object is not iterable" when components try to render it.
     const unwatch = watchConfig((config: ServicenavConfig) => {
-      setServices(config.services || []);
+      setServices(ensureArray<ServiceEntry>(config.services));
       setViewModeState(config.viewMode === 'list' ? 'list' : 'grid');
     });
 
@@ -97,7 +101,10 @@ export function useServices(): UseServicesReturn {
           };
           return {
             ...config,
-            services: [...(config.services || []), newService],
+            // CRITICAL: ensureArray() prevents TypeError when config.services
+            // is a non-iterable (e.g., malformed JSON object) — spreading a
+            // non-iterable inside [] throws Symbol.iterator error and crashes page
+            services: [...ensureArray<ServiceEntry>(config.services), newService],
           };
         });
         // State update happens via the watcher callback
@@ -115,7 +122,7 @@ export function useServices(): UseServicesReturn {
       try {
         setError(null);
         await modifyConfig((config: ServicenavConfig) => {
-          const services = (config.services || []).map((s) => {
+          const services = ensureArray<ServiceEntry>(config.services).map((s) => {
             if (s.id === id) {
               return {
                 ...s,
@@ -145,7 +152,7 @@ export function useServices(): UseServicesReturn {
       try {
         setError(null);
         await modifyConfig((config: ServicenavConfig) => {
-          const services = (config.services || []).filter((s) => s.id !== id);
+          const services = ensureArray<ServiceEntry>(config.services).filter((s) => s.id !== id);
           return { ...config, services };
         });
       } catch (err: any) {

@@ -13,6 +13,20 @@
 
 import type { ServicenavConfig, ServiceEntry, ViewMode } from './types';
 
+/**
+ * Safely coerce a value to an array. If the value is not an array
+ * (e.g., a malformed JSON object, null, undefined), returns an empty array.
+ *
+ * This is critical because Cockpit's JSON file API may return
+ * config data where `services` is a non-array object if the config
+ * file was manually edited or corrupted. Using such a value with
+ * spread operators or .map()/.filter() throws:
+ *   TypeError: object is not iterable (cannot read property Symbol(Symbol.iterator))
+ */
+export function ensureArray<T>(value: unknown, defaultValue: T[] = []): T[] {
+  return Array.isArray(value) ? (value as T[]) : defaultValue;
+}
+
 /** Path to the plugin configuration file on the Cockpit server */
 const CONFIG_PATH = '/etc/cockpit/servicenav.conf';
 
@@ -220,26 +234,43 @@ function migrateConfig(config: any): ServicenavConfig {
     config.version = 1;
   }
 
-  // Ensure required fields exist
-  if (!Array.isArray(config.services)) {
-    config.services = [];
-  }
+  // Ensure required fields exist — use ensureArray to guard against
+  // non-array values (objects, null, etc.) from malformed config files
+  config.services = ensureArray(config.services);
 
   if (!config.viewMode || !['grid', 'list'].includes(config.viewMode)) {
     config.viewMode = 'grid';
   }
 
-  // Normalize service entries
-  config.services = config.services.map((s: any, _index: number) => ({
-    id: s.id || generateId(),
-    name: String(s.name || ''),
-    url: String(s.url || ''),
-    iconType: ['auto', 'url', 'none'].includes(s.iconType) ? s.iconType : 'auto',
-    iconUrl: s.iconUrl || null,
-    description: String(s.description || ''),
-    createdAt: s.createdAt || new Date().toISOString(),
-    updatedAt: s.updatedAt || new Date().toISOString(),
-  }));
+  // Normalize service entries — guard against null/undefined entries
+  // that could appear in a manually-edited or corrupted config file
+  config.services = config.services.map((s: any, _index: number) => {
+    // If the entry is null, undefined, or not an object, skip it by
+    // returning an object with a fresh generated ID. This prevents
+    // TypeError from accessing .id / .name on null values.
+    if (s == null || typeof s !== 'object') {
+      return {
+        id: generateId(),
+        name: '',
+        url: '',
+        iconType: 'auto' as const,
+        iconUrl: null,
+        description: '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+    }
+    return {
+      id: s.id || generateId(),
+      name: String(s.name || ''),
+      url: String(s.url || ''),
+      iconType: ['auto', 'url', 'none'].includes(s.iconType) ? s.iconType : 'auto',
+      iconUrl: s.iconUrl || null,
+      description: String(s.description || ''),
+      createdAt: s.createdAt || new Date().toISOString(),
+      updatedAt: s.updatedAt || new Date().toISOString(),
+    };
+  });
 
   return config as ServicenavConfig;
 }

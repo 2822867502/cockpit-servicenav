@@ -20,6 +20,7 @@ export interface ServiceGridProps {
 }
 
 export const ServiceGrid: React.FC<ServiceGridProps> = ({ services, onEdit, onDelete }) => {
+  const safeServices = Array.isArray(services) ? services : [];
   return (
     <Gallery
       hasGutter
@@ -28,7 +29,7 @@ export const ServiceGrid: React.FC<ServiceGridProps> = ({ services, onEdit, onDe
         xl: '350px',
       }}
     >
-      {services.map((service) => (
+      {safeServices.map((service) => (
         <GalleryItem key={service.id}>
           <ServiceCard
             service={service}
