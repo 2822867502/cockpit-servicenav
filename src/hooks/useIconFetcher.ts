@@ -28,45 +28,60 @@ export interface UseIconFetcherReturn {
 async function fetchViaCockpitHttp(url: string): Promise<string | null> {
   const cockpit = (window as any).cockpit;
   if (!cockpit || typeof cockpit.http !== 'function') {
+    console.warn('[IconFetch] cockpit.http 不可用:', url);
     return null;
   }
 
   try {
     const response = await cockpit.http(url, {
       method: 'GET',
-      headers: { Accept: 'image/*' },
+      headers: { Accept: 'image/x-icon,image/vnd.microsoft.icon,image/*' },
     });
 
-    if (!response) return null;
+    if (!response) {
+      console.warn('[IconFetch] 响应为空:', url);
+      return null;
+    }
 
-    // Case 1: response is the raw body directly (ArrayBuffer, Uint8Array) — older Cockpit
+    console.log('[IconFetch] 响应类型:', typeof response,
+      'instanceof ArrayBuffer:', response instanceof ArrayBuffer,
+      '字节长度:', (response as any).byteLength || (response as any).length);
+
+    // Case 1: raw ArrayBuffer / Uint8Array (older Cockpit returns body directly)
     if (response instanceof ArrayBuffer || response instanceof Uint8Array) {
       const blob = new Blob([response], { type: 'image/x-icon' });
+      console.log('[IconFetch] ArrayBuffer → Blob size:', blob.size);
       return blob.size > 0 ? URL.createObjectURL(blob) : null;
     }
 
-    // Case 2: response is a raw string (older Cockpit)
+    // Case 2: raw string (could be binary text or base64 from old Cockpit)
     if (typeof response === 'string' && response.length > 0) {
       const blob = new Blob([response], { type: 'image/x-icon' });
+      console.log('[IconFetch] string → Blob size:', blob.size);
       return blob.size > 0 ? URL.createObjectURL(blob) : null;
     }
 
-    // Case 3: response is an object with .blob() method (new Cockpit API)
-    if (response && typeof response.blob === 'function') {
-      const blob = await response.blob();
+    // Case 3: response object with .blob() method (new Cockpit API)
+    if (response && typeof (response as any).blob === 'function') {
+      const blob = await (response as any).blob();
+      console.log('[IconFetch] .blob() → size:', blob?.size);
       return (blob && blob.size > 0) ? URL.createObjectURL(blob) : null;
     }
 
-    // Case 4: response has .body property (ArrayBuffer or string)
+    // Case 4: response.body (ArrayBuffer or string)
     const body = (response as any).body;
     if (body) {
       const blob = new Blob([body], { type: 'image/x-icon' });
+      console.log('[IconFetch] .body → Blob size:', blob.size);
       return blob.size > 0 ? URL.createObjectURL(blob) : null;
     }
 
-    return null;
-  } catch (_e) {
-    // TLS error, timeout, unreachable, etc. → default icon
+    // Case 5: unknown format — try to convert whatever we got
+    console.warn('[IconFetch] 未知响应格式:', typeof response, Object.keys(response || {}));
+    const blob = new Blob([response], { type: 'image/x-icon' });
+    return blob.size > 0 ? URL.createObjectURL(blob) : null;
+  } catch (e) {
+    console.warn('[IconFetch] 请求失败:', url, e);
     return null;
   }
 }
@@ -89,11 +104,24 @@ export function useIconFetcher(service: ServiceEntry): UseIconFetcherReturn {
   const [iconSrc, setIconSrc] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(service.iconType !== 'none');
   const [error, setError] = useState<boolean>(false);
-  const mountedRef = useRef(true);
+  const blobUrlRef = useRef<string | null>(null);
 
+  // Revoke previous blob URL to prevent memory leaks
+  const setIconSrcSafe = (url: string | null) => {
+    if (blobUrlRef.current && blobUrlRef.current.startsWith('blob:')) {
+      URL.revokeObjectURL(blobUrlRef.current);
+    }
+    blobUrlRef.current = url;
+    setIconSrc(url);
+  };
+
+  // Cleanup on unmount
   useEffect(() => {
-    mountedRef.current = true;
-    return () => { mountedRef.current = false; };
+    return () => {
+      if (blobUrlRef.current && blobUrlRef.current.startsWith('blob:')) {
+        URL.revokeObjectURL(blobUrlRef.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -112,7 +140,7 @@ export function useIconFetcher(service: ServiceEntry): UseIconFetcherReturn {
         const result = await fetchViaCockpitHttp(service.iconUrl);
         if (cancelled) return;
         if (result) {
-          setIconSrc(result);
+          setIconSrcSafe(result);
         } else {
           setError(true);
         }
@@ -127,7 +155,7 @@ export function useIconFetcher(service: ServiceEntry): UseIconFetcherReturn {
         const result = await fetchViaCockpitHttp(faviconUrl);
         if (cancelled) return;
         if (result) {
-          setIconSrc(result);
+          setIconSrcSafe(result);
         } else {
           setError(true);
         }

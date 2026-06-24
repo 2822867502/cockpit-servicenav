@@ -30,22 +30,27 @@ const App: React.FC = () => {
   const [modal, setModal] = useState<ModalState>({ type: null });
   const [deleteTarget, setDeleteTarget] = useState<ServiceEntry | null>(null);
 
-  // ---- Theme sync: detect pf-theme-dark (PF5) and pf-v6-theme-dark (PF6) ----
+  // ---- Theme sync: copy pf-theme-dark / pf-v6-theme-dark from parent Cockpit ----
   useEffect(() => {
     const sync = () => {
       try {
-        const p = window.parent.document.documentElement.classList;
-        const isDark = p.contains('pf-theme-dark') || p.contains('pf-v6-theme-dark');
-        document.documentElement.classList.toggle('pf-theme-dark', isDark);
+        const parentHtml = window.parent.document.documentElement;
+        const myHtml = document.documentElement;
+        const isDark = parentHtml.classList.contains('pf-theme-dark') || parentHtml.classList.contains('pf-v6-theme-dark');
+        if (isDark) {
+          myHtml.classList.add('pf-theme-dark');
+          myHtml.classList.add('pf-v6-theme-dark');
+        } else {
+          myHtml.classList.remove('pf-theme-dark');
+          myHtml.classList.remove('pf-v6-theme-dark');
+        }
+        console.log('[ThemeSync] 父窗口dark:', isDark, '当前<html>类名:', myHtml.className);
       } catch (_) { /* cross-origin */ }
     };
     sync();
-    let obs: MutationObserver | null = null;
-    try {
-      obs = new MutationObserver(sync);
-      obs.observe(window.parent.document.documentElement, { attributes: true, attributeFilter: ['class'] });
-    } catch (_) { /* cross-origin */ }
-    return () => obs?.disconnect();
+    const obs = new MutationObserver(sync);
+    obs.observe(window.parent.document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => obs.disconnect();
   }, []);
 
   const safeServices = Array.isArray(services) ? services : [];

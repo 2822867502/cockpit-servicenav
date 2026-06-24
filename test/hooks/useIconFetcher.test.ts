@@ -9,9 +9,10 @@ import { renderHook, waitFor, act } from '@testing-library/react';
 import { useIconFetcher } from '../../src/hooks/useIconFetcher';
 import type { ServiceEntry } from '../../src/lib/types';
 
-// Mock URL.createObjectURL since jsdom may not fully support it
+// Mock URL.createObjectURL / revokeObjectURL — jsdom may not fully support them
 const mockObjectUrl = 'blob:mock-icon-url';
 URL.createObjectURL = jest.fn(() => mockObjectUrl);
+URL.revokeObjectURL = jest.fn();
 
 const baseService: ServiceEntry = {
   id: 'test-1',

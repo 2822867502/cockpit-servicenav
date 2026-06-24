@@ -22,20 +22,24 @@ async function bootstrap(): Promise<void> {
     }
 
     // Phase 2: sync dark-mode theme from parent Cockpit BEFORE first render.
-    // Cockpit may use pf-theme-dark (PF5) or pf-v6-theme-dark (PF6).
-    // We must check for both and sync to our iframe's <html>.
     function syncTheme() {
       try {
-        const parentCls = window.parent.document.documentElement.classList;
-        const isDark = parentCls.contains('pf-theme-dark') || parentCls.contains('pf-v6-theme-dark');
-        document.documentElement.classList.toggle('pf-theme-dark', isDark);
+        const parentHtml = window.parent.document.documentElement;
+        const myHtml = document.documentElement;
+        const isDark = parentHtml.classList.contains('pf-theme-dark') || parentHtml.classList.contains('pf-v6-theme-dark');
+        if (isDark) {
+          myHtml.classList.add('pf-theme-dark');
+          myHtml.classList.add('pf-v6-theme-dark');
+        } else {
+          myHtml.classList.remove('pf-theme-dark');
+          myHtml.classList.remove('pf-v6-theme-dark');
+        }
+        console.log('[ThemeSync] 父窗口dark:', isDark, '当前<html>类名:', myHtml.className);
       } catch (_) { /* cross-origin */ }
     }
     syncTheme();
-    try {
-      const observer = new MutationObserver(syncTheme);
-      observer.observe(window.parent.document.documentElement, { attributes: true, attributeFilter: ['class'] });
-    } catch (_) { /* cross-origin */ }
+    const observer = new MutationObserver(syncTheme);
+    observer.observe(window.parent.document.documentElement, { attributes: true, attributeFilter: ['class'] });
 
     // Phase 3: initialize language BEFORE any component calls _()
     initI18n();
