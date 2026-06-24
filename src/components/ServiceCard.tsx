@@ -60,7 +60,9 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service, onEdit, onDel
       >
         <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapMd' }}>
           <FlexItem><ServiceIcon service={service} size="md" /></FlexItem>
-          <FlexItem><CardTitle>{service.name}</CardTitle></FlexItem>
+          <FlexItem>
+            <CardTitle style={{ cursor: 'pointer' }} onClick={handleOpen}>{service.name}</CardTitle>
+          </FlexItem>
         </Flex>
       </CardHeader>
 

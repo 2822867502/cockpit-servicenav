@@ -134,10 +134,30 @@ html, body, #root {
 .pf-theme-dark .pf-v5-c-button.pf-m-danger {
   background-color: #7d1008;
 }
-/* Secondary text */
+/* Secondary / helper text */
 .pf-theme-dark .pf-v5-c-helper-text,
-.pf-theme-dark .pf-v5-c-form__helper-text {
+.pf-theme-dark .pf-v5-c-helper-text__item-text,
+.pf-theme-dark .pf-v5-c-form__helper-text,
+.pf-theme-dark .pf-v5-c-form__helper-text .pf-v5-c-helper-text__item-text {
   color: #b8bbbe;
+}
+/* FormGroup labels */
+.pf-theme-dark .pf-v5-c-form__group-label,
+.pf-theme-dark .pf-v5-c-form__label-text {
+  color: #e0e0e0;
+}
+/* Rounded corners — match Cockpit PF6 aesthetic */
+.pf-v5-c-form-control,
+.pf-v5-c-form-control > input,
+input[type="text"],
+input[type="url"],
+textarea,
+.pf-v5-c-menu-toggle,
+.pf-v5-c-card,
+.pf-v5-c-button,
+.pf-v5-c-toggle-group__button,
+.pf-v5-c-modal-box {
+  border-radius: var(--pf-v5-global--BorderRadius--sm, 4px) !important;
 }
 /* Modal */
 .pf-theme-dark .pf-v5-c-modal-box {
