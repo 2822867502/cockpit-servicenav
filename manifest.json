@@ -1,0 +1,15 @@
+{
+  "name": "servicenav",
+  "version": "1.0.0",
+  "requires": {
+    "cockpit": "270"
+  },
+  "tools": {
+    "servicenav": {
+      "label": "Service Navigation",
+      "path": "index.html",
+      "order": 90
+    }
+  },
+  "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:; connect-src 'self' https: http:;"
+}

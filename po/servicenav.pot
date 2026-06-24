@@ -1,0 +1,182 @@
+# servicenav translation template
+# Copyright (C) 2026
+# This file is distributed under the MIT license.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: cockpit-servicenav 1.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-25 00:00+0000\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Page title
+msgid "Service Navigation"
+msgstr ""
+
+#. Add service button
+msgid "Add Service"
+msgstr ""
+
+#. Edit button
+msgid "Edit"
+msgstr ""
+
+#. Delete button
+msgid "Delete"
+msgstr ""
+
+#. View mode - grid
+msgid "Grid"
+msgstr ""
+
+#. View mode - grid aria label
+msgid "Grid view"
+msgstr ""
+
+#. View mode - list
+msgid "List"
+msgstr ""
+
+#. View mode - list aria label
+msgid "List view"
+msgstr ""
+
+#. View mode toggle aria
+msgid "View mode toggle"
+msgstr ""
+
+#. Card click aria label
+msgid "Click to open in new tab"
+msgstr ""
+
+#. Service card - port label
+msgid "Port"
+msgstr ""
+
+#. Service card - updated label
+msgid "Updated"
+msgstr ""
+
+#. List item actions label
+msgid "Actions for"
+msgstr ""
+
+#. Empty state message
+msgid "No services configured yet. Add your first service to get started."
+msgstr ""
+
+#. Add service modal title
+msgid "Add Service"
+msgstr ""
+
+#. Edit service modal title
+msgid "Edit Service"
+msgstr ""
+
+#. Save button
+msgid "Save"
+msgstr ""
+
+#. Cancel button
+msgid "Cancel"
+msgstr ""
+
+#. Form field - name
+msgid "Name"
+msgstr ""
+
+#. Form field - name placeholder
+msgid "e.g., Portainer, Grafana, Wiki"
+msgstr ""
+
+#. Form field - url
+msgid "URL or Port"
+msgstr ""
+
+#. Form field - url placeholder
+msgid "https://example.com:3000 or just 8080"
+msgstr ""
+
+#. Form field - url help text
+msgid "Enter a full URL (https://...) or just a port number (e.g., 8080). Relative ports use the current Cockpit host and protocol."
+msgstr ""
+
+#. Form field - resolved URL label
+msgid "Resolved URL"
+msgstr ""
+
+#. Form field - icon section label
+msgid "Icon"
+msgstr ""
+
+#. Icon type - auto
+msgid "Auto-fetch favicon from service"
+msgstr ""
+
+#. Icon type - auto description
+msgid "Try to load /favicon.ico from the service URL automatically."
+msgstr ""
+
+#. Icon type - custom url
+msgid "Custom icon URL"
+msgstr ""
+
+#. Icon type - custom url description
+msgid "Use a custom icon from any HTTP/HTTPS URL."
+msgstr ""
+
+#. Icon type - default
+msgid "Default icon"
+msgstr ""
+
+#. Icon type - default description
+msgid "Use the default cube icon."
+msgstr ""
+
+#. Form field - icon URL
+msgid "Icon URL"
+msgstr ""
+
+#. Form field - description
+msgid "Description"
+msgstr ""
+
+#. Form field - description placeholder
+msgid "Optional brief description of this service"
+msgstr ""
+
+#. Edit modal aria label
+msgid "Edit service form"
+msgstr ""
+
+#. Add modal aria label
+msgid "Add service form"
+msgstr ""
+
+#. Delete confirmation - title
+msgid "Delete Service"
+msgstr ""
+
+#. Delete confirmation - message
+msgid "Are you sure you want to delete the service"
+msgstr ""
+
+#. Delete confirmation - warning
+msgid "This action cannot be undone. The service link will be removed from the navigation panel."
+msgstr ""
+
+#. Delete modal aria label
+msgid "Delete service confirmation"
+msgstr ""
+
+#. Loading state
+msgid "Loading services"
+msgstr ""
+
+#. Error title
+msgid "Error"
+msgstr ""

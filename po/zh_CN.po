@@ -1,0 +1,173 @@
+# Chinese (Simplified) translations for cockpit-servicenav
+# Copyright (C) 2026
+# This file is distributed under the MIT license.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cockpit-servicenav 1.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-25 00:00+0000\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Page title
+msgid "Service Navigation"
+msgstr "服务导航"
+
+#. Add service button
+msgid "Add Service"
+msgstr "添加服务"
+
+#. Edit button
+msgid "Edit"
+msgstr "编辑"
+
+#. Delete button
+msgid "Delete"
+msgstr "删除"
+
+#. View mode - grid
+msgid "Grid"
+msgstr "网格"
+
+#. View mode - grid aria label
+msgid "Grid view"
+msgstr "网格视图"
+
+#. View mode - list
+msgid "List"
+msgstr "列表"
+
+#. View mode - list aria label
+msgid "List view"
+msgstr "列表视图"
+
+#. View mode toggle aria
+msgid "View mode toggle"
+msgstr "视图模式切换"
+
+#. Card click aria label
+msgid "Click to open in new tab"
+msgstr "点击在新标签页中打开"
+
+#. Service card - port label
+msgid "Port"
+msgstr "端口"
+
+#. Service card - updated label
+msgid "Updated"
+msgstr "更新于"
+
+#. List item actions label
+msgid "Actions for"
+msgstr "操作 -"
+
+#. Empty state message
+msgid "No services configured yet. Add your first service to get started."
+msgstr "尚未配置任何服务。请添加您的第一个服务以开始使用。"
+
+#. Save button
+msgid "Save"
+msgstr "保存"
+
+#. Cancel button
+msgid "Cancel"
+msgstr "取消"
+
+#. Form field - name
+msgid "Name"
+msgstr "名称"
+
+#. Form field - name placeholder
+msgid "e.g., Portainer, Grafana, Wiki"
+msgstr "例如：Portainer、Grafana、Wiki"
+
+#. Form field - url
+msgid "URL or Port"
+msgstr "URL 或端口"
+
+#. Form field - url placeholder
+msgid "https://example.com:3000 or just 8080"
+msgstr "https://example.com:3000 或直接填 8080"
+
+#. Form field - url help text
+msgid "Enter a full URL (https://...) or just a port number (e.g., 8080). Relative ports use the current Cockpit host and protocol."
+msgstr "输入完整 URL（https://...）或仅输入端口号（如 8080）。相对端口将使用当前 Cockpit 的主机地址和协议。"
+
+#. Form field - resolved URL label
+msgid "Resolved URL"
+msgstr "解析后的 URL"
+
+#. Form field - icon section label
+msgid "Icon"
+msgstr "图标"
+
+#. Icon type - auto
+msgid "Auto-fetch favicon from service"
+msgstr "自动获取服务图标"
+
+#. Icon type - auto description
+msgid "Try to load /favicon.ico from the service URL automatically."
+msgstr "尝试自动从服务 URL 加载 /favicon.ico。"
+
+#. Icon type - custom url
+msgid "Custom icon URL"
+msgstr "自定义图标 URL"
+
+#. Icon type - custom url description
+msgid "Use a custom icon from any HTTP/HTTPS URL."
+msgstr "使用任意 HTTP/HTTPS URL 的自定义图标。"
+
+#. Icon type - default
+msgid "Default icon"
+msgstr "默认图标"
+
+#. Icon type - default description
+msgid "Use the default cube icon."
+msgstr "使用默认的立方体图标。"
+
+#. Form field - icon URL
+msgid "Icon URL"
+msgstr "图标 URL"
+
+#. Form field - description
+msgid "Description"
+msgstr "描述"
+
+#. Form field - description placeholder
+msgid "Optional brief description of this service"
+msgstr "可选的服务简要描述"
+
+#. Edit modal aria label
+msgid "Edit service form"
+msgstr "编辑服务表单"
+
+#. Add modal aria label
+msgid "Add service form"
+msgstr "添加服务表单"
+
+#. Delete confirmation - title
+msgid "Delete Service"
+msgstr "删除服务"
+
+#. Delete confirmation - message
+msgid "Are you sure you want to delete the service"
+msgstr "您确定要删除服务"
+
+#. Delete confirmation - warning
+msgid "This action cannot be undone. The service link will be removed from the navigation panel."
+msgstr "此操作不可撤消。该服务链接将从导航面板中移除。"
+
+#. Delete modal aria label
+msgid "Delete service confirmation"
+msgstr "删除服务确认"
+
+#. Loading state
+msgid "Loading services"
+msgstr "正在加载服务"
+
+#. Error title
+msgid "Error"
+msgstr "错误"

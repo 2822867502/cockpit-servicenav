@@ -1,0 +1,160 @@
+/**
+ * Styles for the Cockpit servicenav plugin.
+ *
+ * Follows PatternFly design conventions and Cockpit's visual style.
+ * Uses PatternFly CSS custom properties for theming compatibility.
+ * BEM-style flat class naming for compatibility with plain CSS.
+ */
+
+/* ---- Page Layout ---- */
+.servicenav-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--pf-v5-global--spacer--md);
+}
+
+.servicenav-header__title {
+  flex: 1;
+}
+
+.servicenav-header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--pf-v5-global--spacer--sm);
+}
+
+/* ---- Service Cards (Grid View) ---- */
+.servicenav-card {
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.servicenav-card:hover {
+  transform: translateY(-2px);
+}
+
+.servicenav-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--pf-v5-global--BorderRadius--lg);
+  background: var(--pf-v5-global--BackgroundColor--light-200);
+  overflow: hidden;
+}
+
+.servicenav-card__icon img {
+  max-width: 48px;
+  max-height: 48px;
+  object-fit: contain;
+}
+
+.servicenav-card__icon svg {
+  width: 36px;
+  height: 36px;
+  color: var(--pf-v5-global--Color--400);
+}
+
+.servicenav-card__icon--sm {
+  width: 40px;
+  height: 40px;
+}
+
+.servicenav-card__icon--sm img {
+  max-width: 28px;
+  max-height: 28px;
+}
+
+.servicenav-card__icon--sm svg {
+  width: 24px;
+  height: 24px;
+}
+
+.servicenav-card__body {
+  min-height: 60px;
+}
+
+.servicenav-card__url {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pf-v5-global--spacer--xs);
+  margin-top: var(--pf-v5-global--spacer--sm);
+  font-size: var(--pf-v5-global--FontSize--sm);
+  color: var(--pf-v5-global--link--Color);
+  cursor: pointer;
+}
+
+.servicenav-card__url:hover {
+  text-decoration: underline;
+}
+
+/* ---- Service List (List View) ---- */
+.servicenav-list__icon-cell {
+  width: 60px;
+  text-align: center;
+}
+
+/* ---- Icon Loading States ---- */
+.servicenav-icon__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.servicenav-icon__fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--pf-v5-global--icon--Color--light);
+}
+
+/* ---- Empty State ---- */
+.servicenav-empty {
+  text-align: center;
+  padding: var(--pf-v5-global--spacer--3xl) var(--pf-v5-global--spacer--lg);
+}
+
+.servicenav-empty__icon {
+  color: var(--pf-v5-global--icon--Color--light);
+  margin-bottom: var(--pf-v5-global--spacer--lg);
+}
+
+/* ---- View Toggle ---- */
+.servicenav-view-toggle {
+  display: inline-flex;
+}
+
+/* ---- Form: Live URL Preview ---- */
+.servicenav-form__url-preview {
+  padding: var(--pf-v5-global--spacer--sm);
+  background: var(--pf-v5-global--BackgroundColor--light-200);
+  border-radius: var(--pf-v5-global--BorderRadius--sm);
+  font-size: var(--pf-v5-global--FontSize--sm);
+  color: var(--pf-v5-global--Color--200);
+  margin-top: var(--pf-v5-global--spacer--xs);
+  word-break: break-all;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+  .servicenav-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .servicenav-card__icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .servicenav-card__icon img {
+    max-width: 36px;
+    max-height: 36px;
+  }
+}
