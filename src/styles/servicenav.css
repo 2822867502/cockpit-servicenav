@@ -1,65 +1,88 @@
 /**
- * Styles for the Cockpit servicenav plugin.
- * Dark mode: browser-native color-scheme + minimal PF5 fixes.
+ * Dark mode: override PF5 design tokens — same approach as official PF6 CSS.
+ * PF5 components use --pf-v5-* tokens; overriding them here makes
+ * ALL PF5 components dark automatically.
  */
 
-/* ======== Dark mode ======== */
 .pf-theme-dark {
   color-scheme: dark;
+
+  /* ---- Background tokens ---- */
+  --pf-v5-global--BackgroundColor--100: #151515;
+  --pf-v5-global--BackgroundColor--200: #1e1e1e;
+  --pf-v5-global--BackgroundColor--300: #2a2d30;
+  --pf-v5-global--BackgroundColor--light-100: #1a1d21;
+  --pf-v5-global--BackgroundColor--light-200: #1e1e1e;
+  --pf-v5-global--BackgroundColor--light-300: #2a2d30;
+  --pf-v5-global--BackgroundColor--dark-100: #e0e0e0;
+  --pf-v5-global--BackgroundColor--dark-200: #b8bbbe;
+  --pf-v5-global--BackgroundColor--dark-300: #6a6e73;
+  --pf-v5-global--BackgroundColor--dark-400: #3c3f42;
+
+  /* ---- Text tokens ---- */
+  --pf-v5-global--Color--100: #e0e0e0;
+  --pf-v5-global--Color--200: #b8bbbe;
+  --pf-v5-global--Color--300: #6a6e73;
+  --pf-v5-global--Color--400: #3c3f42;
+  --pf-v5-global--text--Color--100: #e0e0e0;
+  --pf-v5-global--text--Color--200: #b8bbbe;
+  --pf-v5-global--text--Color--300: #6a6e73;
+
+  /* ---- Link tokens ---- */
+  --pf-v5-global--link--Color: #419eda;
+  --pf-v5-global--link--Color--hover: #6ebcef;
+  --pf-v5-global--link--Color--dark: #419eda;
+
+  /* ---- Icon tokens ---- */
+  --pf-v5-global--icon--Color--regular: #b8bbbe;
+  --pf-v5-global--icon--Color--dark: #6a6e73;
+  --pf-v5-global--icon--Color--light: #e0e0e0;
+
+  /* ---- Border tokens ---- */
+  --pf-v5-global--BorderColor--100: #3c3f42;
+  --pf-v5-global--BorderColor--200: #2a2d30;
+  --pf-v5-global--BorderColor--300: #6a6e73;
+  --pf-v5-global--BorderColor--light-100: #3c3f42;
+  --pf-v5-global--BorderColor--dark-100: #b8bbbe;
+
+  /* ---- Danger / warning (keep vibrant) ---- */
+  --pf-v5-global--danger-color--100: #c9190b;
+  --pf-v5-global--warning-color--100: #f0ab00;
+
+  /* ---- Component-level overrides ---- */
+  /* Card */
+  --pf-v5-c-card--BackgroundColor: var(--pf-v5-global--BackgroundColor--200);
+  /* Page */
+  --pf-v5-c-page--BackgroundColor: var(--pf-v5-global--BackgroundColor--100);
+  /* Form control */
+  --pf-v5-c-form-control--BackgroundColor: var(--pf-v5-global--BackgroundColor--200);
+  --pf-v5-c-form-control--Color: var(--pf-v5-global--Color--100);
+  --pf-v5-c-form-control--BorderColor: var(--pf-v5-global--BorderColor--100);
+  --pf-v5-c-form-control--BorderBottomColor: var(--pf-v5-global--BorderColor--100);
+  /* Menu toggle */
+  --pf-v5-c-menu-toggle--BackgroundColor: var(--pf-v5-global--BackgroundColor--200);
+  --pf-v5-c-menu-toggle--Color: var(--pf-v5-global--Color--100);
+  /* Data list */
+  --pf-v5-c-data-list--BackgroundColor: var(--pf-v5-global--BackgroundColor--200);
+  --pf-v5-c-data-list--BorderColor: var(--pf-v5-global--BorderColor--100);
+  /* Modal */
+  --pf-v5-c-modal-box--BackgroundColor: var(--pf-v5-global--BackgroundColor--200);
+  /* Title */
+  --pf-v5-c-title--Color: var(--pf-v5-global--Color--100);
+  /* Toggle */
+  --pf-v5-c-toggle-group__button--BackgroundColor: var(--pf-v5-global--BackgroundColor--200);
+  --pf-v5-c-toggle-group__button--Color: var(--pf-v5-global--Color--100);
+  /* Select */
+  --pf-v5-c-select__menu--BackgroundColor: var(--pf-v5-global--BackgroundColor--300);
+  --pf-v5-c-select__menu-item--Color: var(--pf-v5-global--Color--100);
 }
 
-/* Fix PF5 elements that ignore color-scheme in dark mode */
-.pf-theme-dark .pf-v5-c-page,
-.pf-theme-dark .pf-v5-c-page__main-section,
-.pf-theme-dark .pf-v5-c-page__main-section.pf-m-light,
-.pf-theme-dark body, .pf-theme-dark #root {
-  background-color: #151515;
-}
-.pf-theme-dark .pf-v5-c-card {
-  background-color: #1e1e1e;
-  border-radius: 8px;
-}
-.pf-theme-dark .pf-v5-c-card__title,
-.pf-theme-dark .pf-v5-c-card__title-text {
-  color: #e0e0e0;
-}
-.pf-theme-dark .pf-v5-c-modal-box {
-  background-color: #1e1e1e;
-  border-radius: 8px;
-}
-.pf-theme-dark .pf-v5-c-menu,
-.pf-theme-dark .pf-v5-c-select__menu {
-  background-color: #2a2d30;
-  border: 1px solid #3c3f42;
-  border-radius: 6px;
-}
-.pf-theme-dark .pf-v5-c-menu__item,
-.pf-theme-dark .pf-v5-c-select__menu-item {
-  color: #e0e0e0;
-  border-radius: 4px;
-}
-.pf-theme-dark .pf-v5-c-menu__item:hover,
-.pf-theme-dark .pf-v5-c-select__menu-item:hover {
-  background-color: #3c3f42;
-}
-.pf-theme-dark .pf-v5-c-toggle-group__button {
-  background-color: #1e1e1e;
-  color: #e0e0e0;
-}
-/* Fix autofill white flash */
-.pf-theme-dark input:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0 30px Field inset !important;
-  transition: background-color 9999s;
-}
-
-/* ======== Shared component styles ======== */
+/* ======== Shared styles ======== */
 .servicenav-header {
   display: flex; align-items: center; justify-content: space-between;
   flex-wrap: wrap; gap: var(--pf-v5-global--spacer--md);
 }
-.servicenav-card {
-  transition: box-shadow 0.2s ease, transform 0.15s ease;
-}
+.servicenav-card { transition: box-shadow 0.2s ease, transform 0.15s ease; }
 .servicenav-card:hover { transform: translateY(-2px); }
 
 .servicenav-card__icon {
@@ -76,7 +99,6 @@
 .servicenav-card__icon--sm svg { width: 24px; height: 24px; }
 
 .servicenav-card__body { min-height: 60px; }
-
 .servicenav-card__url {
   display: inline-flex; align-items: center;
   gap: var(--pf-v5-global--spacer--xs);
@@ -86,7 +108,6 @@
   cursor: pointer;
 }
 .servicenav-card__url:hover { text-decoration: underline; }
-
 .servicenav-list__icon-cell { width: 60px; text-align: center; }
 
 .servicenav-icon__loading,
@@ -100,7 +121,6 @@
   text-align: center;
   padding: var(--pf-v5-global--spacer--3xl) var(--pf-v5-global--spacer--lg);
 }
-
 .servicenav-view-toggle { display: inline-flex; }
 
 .servicenav-form__url-preview {
