@@ -34,7 +34,6 @@ async function bootstrap(): Promise<void> {
           myHtml.classList.remove('pf-theme-dark');
           myHtml.classList.remove('pf-v6-theme-dark');
         }
-        console.log('[ThemeSync] 父窗口dark:', isDark, '当前<html>类名:', myHtml.className);
       } catch (_) { /* cross-origin */ }
     }
     syncTheme();

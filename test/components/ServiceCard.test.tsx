@@ -62,12 +62,12 @@ describe('ServiceCard', () => {
     expect(screen.getByText(/Port: 3000/i)).toBeInTheDocument();
   });
 
-  it('opens service URL in new tab on card click', async () => {
+  it('opens service URL in new tab on URL link click', async () => {
     render(
       <ServiceCard service={mockService} onEdit={jest.fn()} onDelete={jest.fn()} />
     );
-    // Click the card
-    await userEvent.click(screen.getByText('Grafana'));
+    // Click the port/URL link row (not the card)
+    await userEvent.click(screen.getByText(/Port: 3000/i));
     expect(mockWindowOpen).toHaveBeenCalledWith(
       expect.stringContaining('3000'),
       '_blank',

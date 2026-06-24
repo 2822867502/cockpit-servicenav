@@ -1,24 +1,12 @@
 /**
- * ServiceCard component — displays a single service as a PatternFly Card.
- *
- * Shows the service icon, name, description, and resolved URL.
- * Provides edit/delete action buttons. Clicking the card opens the service in a new tab.
+ * ServiceCard — displays a service with icon, name, description, and URL link.
+ * Only the URL link row and edit/delete buttons are clickable.
  */
 
 import React from 'react';
 import {
-  Card,
-  CardHeader,
-  CardBody,
-  CardFooter,
-  CardTitle,
-  Text,
-  TextContent,
-  TextVariants,
-  Button,
-  Flex,
-  FlexItem,
-  Label,
+  Card, CardHeader, CardBody, CardFooter, CardTitle,
+  Text, TextContent, TextVariants, Button, Flex, FlexItem,
 } from '@patternfly/react-core';
 import { PencilAltIcon, TimesIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
 import type { ServiceEntry } from '../lib/types';
@@ -32,16 +20,10 @@ export interface ServiceCardProps {
   onDelete: (id: string) => void;
 }
 
-/**
- * Format an ISO 8601 timestamp for display.
- */
 function formatDate(isoString: string): string {
   try {
-    const date = new Date(isoString);
-    return date.toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
+    return new Date(isoString).toLocaleDateString(undefined, {
+      year: 'numeric', month: 'short', day: 'numeric',
     });
   } catch {
     return isoString;
@@ -52,46 +34,23 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service, onEdit, onDel
   const resolvedUrl = resolveServiceUrl(service.url, service.httpsMode);
   const port = extractPort(service.url);
 
-  const handleCardClick = () => {
-    if (resolvedUrl) {
-      window.open(resolvedUrl, '_blank', 'noopener,noreferrer');
-    }
-  };
-
-  const handleEditClick = (e: React.MouseEvent) => {
+  const handleOpen = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onEdit(service.id);
-  };
-
-  const handleDeleteClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onDelete(service.id);
+    if (resolvedUrl) window.open(resolvedUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
-    <Card
-      className="servicenav-card"
-      isClickable
-      isSelectable
-      onClick={handleCardClick}
-      aria-label={`${service.name} — ${_('Click to open in new tab')}`}
-    >
+    <Card className="servicenav-card">
       <CardHeader
         actions={{
           actions: (
             <>
-              <Button
-                variant="plain"
-                aria-label={_('Edit') + ' ' + service.name}
-                onClick={handleEditClick}
-              >
+              <Button variant="plain" aria-label={_('Edit') + ' ' + service.name}
+                onClick={(e: any) => { e.stopPropagation(); onEdit(service.id); }}>
                 <PencilAltIcon />
               </Button>
-              <Button
-                variant="plain"
-                aria-label={_('Delete') + ' ' + service.name}
-                onClick={handleDeleteClick}
-              >
+              <Button variant="plain" aria-label={_('Delete') + ' ' + service.name}
+                onClick={(e: any) => { e.stopPropagation(); onDelete(service.id); }}>
                 <TimesIcon />
               </Button>
             </>
@@ -100,12 +59,8 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service, onEdit, onDel
         }}
       >
         <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapMd' }}>
-          <FlexItem>
-            <ServiceIcon service={service} size="md" />
-          </FlexItem>
-          <FlexItem>
-            <CardTitle>{service.name}</CardTitle>
-          </FlexItem>
+          <FlexItem><ServiceIcon service={service} size="md" /></FlexItem>
+          <FlexItem><CardTitle>{service.name}</CardTitle></FlexItem>
         </Flex>
       </CardHeader>
 
@@ -115,11 +70,10 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service, onEdit, onDel
             <Text component={TextVariants.small}>{service.description}</Text>
           </TextContent>
         )}
-        <div className="servicenav-card__url">
+        <div className="servicenav-card__url" onClick={handleOpen} role="link" tabIndex={0}
+          onKeyDown={(e) => { if (e.key === 'Enter') handleOpen(e as any); }}>
           <ExternalLinkAltIcon />
-          <span>
-            {port ? `${_('Port')}: ${port}` : resolvedUrl}
-          </span>
+          <span>{port ? `${_('Port')}: ${port}` : resolvedUrl}</span>
         </div>
       </CardBody>
 

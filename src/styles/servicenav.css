@@ -25,6 +25,11 @@ html, body, #root {
 .pf-theme-dark .pf-v5-c-card {
   background-color: #1e1e1e;
 }
+.pf-theme-dark .pf-v5-c-card__title,
+.pf-theme-dark .pf-v5-c-card__title-text,
+.pf-theme-dark .pf-v5-c-card__header {
+  color: #e0e0e0;
+}
 .pf-theme-dark .pf-v5-c-title,
 .pf-theme-dark h1, .pf-theme-dark h2, .pf-theme-dark h3,
 .pf-theme-dark h4, .pf-theme-dark h5, .pf-theme-dark h6 {
