@@ -1,78 +1,126 @@
 /**
  * Styles for the Cockpit servicenav plugin.
- * PF5 base.css does NOT include .pf-theme-dark rules — we provide them here.
+ * Direct class targeting for dark mode — PF5 component classes
+ * are styled explicitly since PF5 base.css lacks .pf-theme-dark rules.
  */
 
-/* ---- Dark-mode variable overrides ---- */
-.pf-theme-dark {
-  /* Backgrounds */
-  --pf-v5-global--BackgroundColor--100: #0f1214;
-  --pf-v5-global--BackgroundColor--200: #1a1d21;
-  --pf-v5-global--BackgroundColor--300: #24282d;
-  /* Text */
-  --pf-v5-global--Color--100: #e0e0e0;
-  --pf-v5-global--Color--200: #b8bbbe;
-  --pf-v5-global--text--Color--100: #e0e0e0;
-  --pf-v5-global--text--Color--200: #b8bbbe;
-  /* Links & icons */
-  --pf-v5-global--link--Color: #419eda;
-  --pf-v5-global--link--Color--dark: #419eda;
-  --pf-v5-global--icon--Color--regular: #b8bbbe;
-  --pf-v5-global--icon--Color--dark: #6a6e73;
-  /* Borders */
-  --pf-v5-global--BorderColor--100: #3c3f42;
-  --pf-v5-global--BorderColor--200: #2a2d30;
-  /* Cards */
-  --pf-v5-c-card--BackgroundColor: #1a1d21;
-  /* Page */
-  --pf-v5-c-page--BackgroundColor: #0f1214;
-  --pf-v5-c-page__main-section--m-light--BackgroundColor: #0f1214;
-  --pf-v5-c-page__main-section--BackgroundColor: #0f1214;
-  /* Form controls (inputs, selects, textareas) */
-  --pf-v5-c-form-control--BackgroundColor: #2a2d30;
-  --pf-v5-c-form-control--Color: #e0e0e0;
-  --pf-v5-c-form-control--BorderColor: #3c3f42;
-  --pf-v5-c-form-control--readonly--BackgroundColor: #1a1d21;
-  --pf-v5-c-form-control--placeholder--Color: #6a6e73;
-  /* DataList */
-  --pf-v5-c-data-list--BackgroundColor: #1a1d21;
-  --pf-v5-c-data-list--BorderColor: #2a2d30;
-  --pf-v5-c-data-list__item--BackgroundColor: #1a1d21;
-  /* Gallery */
-  --pf-v5-l-gallery--BackgroundColor: transparent;
-  /* Title / headings */
-  --pf-v5-c-title--Color: #e0e0e0;
-  /* Buttons */
-  --pf-v5-c-button--m-link--Color: #419eda;
-  --pf-v5-c-button--m-link--hover--Color: #6ebcef;
-  /* Toggle group */
-  --pf-v5-c-toggle-group__button--BackgroundColor: #2a2d30;
-  --pf-v5-c-toggle-group__button--Color: #e0e0e0;
-  --pf-v5-c-toggle-group__button--m-selected--BackgroundColor: #419eda;
-  /* Select / MenuToggle */
-  --pf-v5-c-menu-toggle--BackgroundColor: #2a2d30;
-  --pf-v5-c-menu-toggle--Color: #e0e0e0;
-  --pf-v5-c-menu-toggle__controls--Color: #b8bbbe;
-}
-
-/* ---- Foundation ---- */
+/* ======== Light mode (default PF5) ======== */
 html, body, #root {
-  background-color: var(--pf-v5-global--BackgroundColor--100) !important;
+  background-color: var(--pf-v5-global--BackgroundColor--100);
 }
 .servicenav-page,
 .pf-v5-c-page {
-  background-color: var(--pf-v5-global--BackgroundColor--100) !important;
+  background-color: var(--pf-v5-global--BackgroundColor--100);
 }
 
-/* ---- Layout ---- */
+/* ======== Dark mode ======== */
+.pf-theme-dark,
+.pf-theme-dark body,
+.pf-theme-dark #root,
+.pf-theme-dark .pf-v5-c-page,
+.pf-theme-dark .pf-v5-c-page__main-section,
+.pf-theme-dark .pf-v5-c-page__main-section.pf-m-light {
+  background-color: #151515;
+}
+.pf-theme-dark .pf-v5-c-card {
+  background-color: #1e1e1e;
+}
+.pf-theme-dark .pf-v5-c-title,
+.pf-theme-dark h1, .pf-theme-dark h2, .pf-theme-dark h3,
+.pf-theme-dark h4, .pf-theme-dark h5, .pf-theme-dark h6 {
+  color: #e0e0e0;
+}
+.pf-theme-dark .pf-v5-c-content,
+.pf-theme-dark p, .pf-theme-dark span,
+.pf-theme-dark .pf-v5-c-form__label-text,
+.pf-theme-dark .pf-v5-c-form__label,
+.pf-theme-dark label {
+  color: #e0e0e0;
+}
+/* Form inputs */
+.pf-theme-dark .pf-v5-c-form-control,
+.pf-theme-dark input[type="text"],
+.pf-theme-dark input[type="url"],
+.pf-theme-dark textarea,
+.pf-theme-dark .pf-v5-c-form-control > input {
+  background-color: #2a2d30;
+  color: #e0e0e0;
+  border-color: #3c3f42;
+}
+.pf-theme-dark .pf-v5-c-form-control::placeholder {
+  color: #6a6e73;
+}
+/* Select / MenuToggle */
+.pf-theme-dark .pf-v5-c-menu-toggle {
+  background-color: #2a2d30;
+  color: #e0e0e0;
+}
+.pf-theme-dark .pf-v5-c-menu-toggle__controls {
+  color: #b8bbbe;
+}
+/* DataList */
+.pf-theme-dark .pf-v5-c-data-list,
+.pf-theme-dark .pf-v5-c-data-list__item {
+  background-color: #1e1e1e;
+  border-color: #2a2d30;
+}
+/* Toggle group */
+.pf-theme-dark .pf-v5-c-toggle-group__button {
+  background-color: #2a2d30;
+  color: #e0e0e0;
+}
+.pf-theme-dark .pf-v5-c-toggle-group__button.pf-m-selected {
+  background-color: #004080;
+}
+/* Buttons */
+.pf-theme-dark .pf-v5-c-button.pf-m-link,
+.pf-theme-dark .pf-v5-c-button.pf-m-link:hover {
+  color: #419eda;
+}
+.pf-theme-dark .pf-v5-c-button.pf-m-plain {
+  color: #b8bbbe;
+}
+.pf-theme-dark .pf-v5-c-button.pf-m-secondary {
+  background-color: #2a2d30;
+  color: #e0e0e0;
+}
+/* Secondary text */
+.pf-theme-dark .pf-v5-c-helper-text,
+.pf-theme-dark .pf-v5-c-form__helper-text {
+  color: #b8bbbe;
+}
+/* Modal */
+.pf-theme-dark .pf-v5-c-modal-box {
+  background-color: #1e1e1e;
+}
+/* Alert inline */
+.pf-theme-dark .pf-v5-c-alert.pf-m-inline {
+  background-color: #2a1f1f;
+}
+/* Empty state */
+.pf-theme-dark .pf-v5-c-empty-state__body {
+  color: #e0e0e0;
+}
+/* Radio */
+.pf-theme-dark .pf-v5-c-radio__label {
+  color: #e0e0e0;
+}
+.pf-theme-dark .pf-v5-c-radio__description {
+  color: #b8bbbe;
+}
+/* Divider / border */
+.pf-theme-dark hr,
+.pf-theme-dark .pf-v5-c-divider {
+  border-color: #2a2d30;
+}
+
+/* ======== Shared component styles ======== */
 .servicenav-header {
   display: flex; align-items: center; justify-content: space-between;
   flex-wrap: wrap; gap: var(--pf-v5-global--spacer--md);
 }
-
 .servicenav-card {
   transition: box-shadow 0.2s ease, transform 0.15s ease;
-  background-color: var(--pf-v5-global--BackgroundColor--200);
 }
 .servicenav-card:hover { transform: translateY(-2px); }
 
