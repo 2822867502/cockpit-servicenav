@@ -95,12 +95,14 @@
   --pf-v5-c-modal-box--BackgroundColor: var(--pf-v5-global--BackgroundColor--200);
   /* Title */
   --pf-v5-c-title--Color: var(--pf-v5-global--Color--100);
-  /* Toggle: selected state needs contrast */
+  /* ToggleGroup: like official PF6 */
   --pf-v5-c-toggle-group__button--BackgroundColor: #1e1e1e;
   --pf-v5-c-toggle-group__button--Color: var(--pf-v5-global--Color--100);
-  --pf-v5-c-toggle-group__text--Color: var(--pf-v5-global--Color--100);
   --pf-v5-c-toggle-group__button--m-selected--BackgroundColor: #004080;
   --pf-v5-c-toggle-group__button--m-selected--Color: #fff;
+  --pf-v5-c-toggle-group__button--m-selected--before--BorderColor: #004080;
+  /* Direct fallback for ToggleGroup text */
+  --pf-v5-c-toggle-group__text--Color: var(--pf-v5-global--Color--100);
   --pf-v5-c-toggle-group__button--m-selected__text--Color: #fff;
   /* Button */
   --pf-v5-c-button--m-link--Color: var(--pf-v5-global--link--Color);
@@ -113,6 +115,12 @@
   /* Helper text */
   --pf-v5-c-form__helper-text--Color: var(--pf-v5-global--Color--200);
   --pf-v5-c-helper-text__item-text--Color: var(--pf-v5-global--Color--200);
+}
+
+/* Direct CSS fallback — guarantees dark mode regardless of token chain */
+.pf-theme-dark .pf-v5-c-toggle-group__button.pf-m-selected .pf-v5-c-toggle-group__text,
+.pf-theme-dark .pf-v5-c-toggle-group__button.pf-m-selected {
+  color: #fff;
 }
 
 /* ======== Shared styles ======== */
