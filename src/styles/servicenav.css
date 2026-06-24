@@ -113,12 +113,25 @@
   --pf-v5-c-helper-text__item-text--Color: var(--pf-v5-global--Color--200);
 }
 
-/* Direct CSS — verbatim copy of official PF6 patterns, adapted for PF5 class names */
+/* Direct CSS — verbatim official PF6 pattern, adapted for PF5 class names */
 
-/* Toggle */
-.pf-theme-dark .pf-v5-c-toggle-group__button.pf-m-selected,
-.pf-theme-dark .pf-v5-c-toggle-group__button.pf-m-selected .pf-v5-c-toggle-group__text {
-  color: #fff;
+/* ToggleGroup — exact PF6 pattern: selected state re-maps tokens */
+.pf-theme-dark .pf-v5-c-toggle-group__button.pf-m-selected {
+  color: #fff !important;
+  background-color: #0066cc !important;
+}
+.pf-theme-dark .pf-v5-c-toggle-group__button.pf-m-selected::before {
+  border-color: #0066cc !important;
+}
+.pf-theme-dark .pf-v5-c-toggle-group__button {
+  color: var(--pf-v5-global--Color--100);
+  background-color: var(--pf-v5-global--BackgroundColor--200);
+}
+.pf-theme-dark .pf-v5-c-toggle-group__button::before {
+  border-color: var(--pf-v5-global--BorderColor--100);
+}
+.pf-theme-dark .pf-v5-c-toggle-group__button:hover {
+  background-color: var(--pf-v5-global--BackgroundColor--300);
 }
 
 /* Form-control — exactly like pf-v6-c-form-control */
