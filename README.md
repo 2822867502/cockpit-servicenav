@@ -7,6 +7,8 @@ A Cockpit plugin that adds a "Service Navigation" page to the Cockpit admin inte
 
 **Authors**: deepseek v4 pro & zlk
 
+[中文文档](README.zh_CN.md)
+
 ---
 
 ## Features
