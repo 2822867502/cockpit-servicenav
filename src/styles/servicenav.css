@@ -42,37 +42,31 @@ html, body, #root {
 .pf-theme-dark label {
   color: #e0e0e0;
 }
-/* ---- Form controls: clean PF6-style, no harsh borders ---- */
-.pf-theme-dark .pf-v5-c-form-control,
-.pf-theme-dark input[type="text"],
-.pf-theme-dark input[type="url"],
-.pf-theme-dark textarea {
+/* ---- Form controls: span wrapper styled, input transparent ---- */
+.pf-theme-dark .pf-v5-c-form-control {
   background-color: #1e1e1e;
   color: #e0e0e0;
-  border: none;
   border-bottom: 1px solid #3c3f42;
-  border-radius: 3px 3px 0 0;
+  border-top: 0; border-left: 0; border-right: 0;
+  border-radius: 0;
   box-shadow: none;
-  outline: none;
 }
-.pf-theme-dark .pf-v5-c-form-control:focus-within,
-.pf-theme-dark input[type="text"]:focus,
-.pf-theme-dark input[type="url"]:focus,
-.pf-theme-dark textarea:focus {
+.pf-theme-dark .pf-v5-c-form-control:focus-within {
   border-bottom-color: #419eda;
-  border-bottom-width: 2px;
 }
-.pf-theme-dark .pf-v5-c-form-control::placeholder,
-.pf-theme-dark input::placeholder {
+.pf-theme-dark .pf-v5-c-form-control > input,
+.pf-theme-dark .pf-v5-c-form-control > textarea {
+  background: transparent !important;
+  color: inherit;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  padding: 0;
+}
+.pf-theme-dark .pf-v5-c-form-control > input::placeholder,
+.pf-theme-dark .pf-v5-c-form-control > textarea::placeholder {
   color: #6a6e73;
 }
-.pf-theme-dark .pf-v5-c-form-control > input {
-  background: transparent;
-  color: #e0e0e0;
-  border: none;
-  outline: none;
-}
-/* Autofill */
 .pf-theme-dark input:-webkit-autofill {
   -webkit-box-shadow: 0 0 0 30px #1e1e1e inset !important;
   -webkit-text-fill-color: #e0e0e0 !important;
@@ -84,7 +78,9 @@ html, body, #root {
   background-color: #1e1e1e;
   color: #e0e0e0;
   border-bottom: 1px solid #3c3f42;
-  border-radius: 3px 3px 0 0;
+  border-top: 0; border-left: 0; border-right: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 .pf-theme-dark .pf-v5-c-menu-toggle__controls,
 .pf-theme-dark .pf-v5-c-menu-toggle__toggle-icon {
