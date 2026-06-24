@@ -58,8 +58,6 @@
   --pf-v5-c-form-control--BackgroundColor: #1e1e1e;
   --pf-v5-c-form-control--Color: var(--pf-v5-global--Color--100);
   --pf-v5-c-form-control--BorderRadius: 8px;
-  --pf-v5-c-form-control--before--BorderRadius: 8px;
-  --pf-v5-c-form-control--after--BorderRadius: 8px;
   --pf-v5-c-form-control--before--BorderTopColor: var(--pf-v5-global--BorderColor--100);
   --pf-v5-c-form-control--before--BorderRightColor: var(--pf-v5-global--BorderColor--100);
   --pf-v5-c-form-control--before--BorderBottomColor: var(--pf-v5-global--BorderColor--100);
@@ -71,8 +69,6 @@
   --pf-v5-c-menu-toggle--BackgroundColor: #1e1e1e;
   --pf-v5-c-menu-toggle--Color: var(--pf-v5-global--Color--100);
   --pf-v5-c-menu-toggle--BorderRadius: 8px;
-  --pf-v5-c-menu-toggle--before--BorderRadius: 8px;
-  --pf-v5-c-menu-toggle--after--BorderRadius: 8px;
   --pf-v5-c-menu-toggle--before--BorderTopColor: var(--pf-v5-global--BorderColor--100);
   --pf-v5-c-menu-toggle--before--BorderRightColor: var(--pf-v5-global--BorderColor--100);
   --pf-v5-c-menu-toggle--before--BorderBottomColor: var(--pf-v5-global--BorderColor--100);
@@ -117,10 +113,54 @@
   --pf-v5-c-helper-text__item-text--Color: var(--pf-v5-global--Color--200);
 }
 
-/* Direct CSS fallback — guarantees dark mode regardless of token chain */
-.pf-theme-dark .pf-v5-c-toggle-group__button.pf-m-selected .pf-v5-c-toggle-group__text,
-.pf-theme-dark .pf-v5-c-toggle-group__button.pf-m-selected {
+/* Direct CSS — verbatim copy of official PF6 patterns, adapted for PF5 class names */
+
+/* Toggle */
+.pf-theme-dark .pf-v5-c-toggle-group__button.pf-m-selected,
+.pf-theme-dark .pf-v5-c-toggle-group__button.pf-m-selected .pf-v5-c-toggle-group__text {
   color: #fff;
+}
+
+/* Form-control — exactly like pf-v6-c-form-control */
+.pf-theme-dark .pf-v5-c-form-control {
+  border-radius: 8px;
+  overflow: hidden;
+}
+.pf-theme-dark .pf-v5-c-form-control::before {
+  border-radius: 8px;
+}
+.pf-theme-dark .pf-v5-c-form-control::after {
+  border-radius: 8px;
+}
+.pf-theme-dark .pf-v5-c-form-control > input,
+.pf-theme-dark .pf-v5-c-form-control > textarea,
+.pf-theme-dark .pf-v5-c-form-control > select {
+  background-color: transparent;
+  border: none;
+  border-radius: 8px;
+  outline-offset: -6px;
+}
+
+/* MenuToggle — like pf-v6-c-menu-toggle */
+.pf-theme-dark .pf-v5-c-menu-toggle {
+  border-radius: 8px;
+  overflow: hidden;
+}
+.pf-theme-dark .pf-v5-c-menu-toggle::before,
+.pf-theme-dark .pf-v5-c-menu-toggle::after {
+  border-radius: 8px;
+}
+
+/* Card */
+.pf-theme-dark .pf-v5-c-card {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Modal */
+.pf-theme-dark .pf-v5-c-modal-box {
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 /* ======== Shared styles ======== */
