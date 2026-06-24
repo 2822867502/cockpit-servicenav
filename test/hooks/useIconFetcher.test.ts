@@ -1,18 +1,10 @@
 /**
- * Tests for useIconFetcher — cockpit.http() based icon loading.
- *
- * The hook now uses cockpit.http() EXCLUSIVELY — no <img> fallback.
- * Tests mock cockpit.http() to return blobs or reject.
+ * Tests for useIconFetcher — synchronous URL resolution.
  */
 
-import { renderHook, waitFor, act } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
 import { useIconFetcher } from '../../src/hooks/useIconFetcher';
 import type { ServiceEntry } from '../../src/lib/types';
-
-// Mock URL.createObjectURL / revokeObjectURL — jsdom may not fully support them
-const mockObjectUrl = 'blob:mock-icon-url';
-URL.createObjectURL = jest.fn(() => mockObjectUrl);
-URL.revokeObjectURL = jest.fn();
 
 const baseService: ServiceEntry = {
   id: 'test-1',
@@ -26,120 +18,36 @@ const baseService: ServiceEntry = {
   updatedAt: '2026-01-01T00:00:00.000Z',
 };
 
-function mockHttpSuccess() {
-  const mockBlob = new Blob(['fake-image-data'], { type: 'image/png' });
-  const cockpit = (window as any).cockpit;
-  cockpit.http.mockResolvedValue({
-    blob: () => Promise.resolve(mockBlob),
-    status: 200,
-  });
-}
-
-function mockHttpFailure() {
-  const cockpit = (window as any).cockpit;
-  cockpit.http.mockRejectedValue(new Error('TLS handshake failure'));
-}
-
 describe('useIconFetcher', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    (URL.createObjectURL as jest.Mock).mockReturnValue(mockObjectUrl);
-    mockHttpFailure(); // default: TLS failure
-  });
-
-  it('returns loading=false immediately for iconType "none" (no network)', () => {
+  it('returns null for iconType "none"', () => {
     const svc = { ...baseService, iconType: 'none' as const };
     const { result } = renderHook(() => useIconFetcher(svc));
-    expect(result.current.loading).toBe(false);
-    expect(result.current.iconSrc).toBeNull();
-    expect(result.current.error).toBe(false);
-  });
-
-  it('sets error when cockpit.http() fails (TLS error → default icon)', async () => {
-    mockHttpFailure();
-    const svc = { ...baseService, iconType: 'auto' as const };
-    const { result } = renderHook(() => useIconFetcher(svc));
-
-    await waitFor(() => {
-      expect(result.current.loading).toBe(false);
-    });
-
-    expect(result.current.error).toBe(true);
-    expect(result.current.iconSrc).toBeNull();
-  });
-
-  it('sets iconSrc on successful cockpit.http() fetch', async () => {
-    mockHttpSuccess();
-    const svc = { ...baseService, iconType: 'auto' as const };
-    const { result } = renderHook(() => useIconFetcher(svc));
-
-    await waitFor(() => {
-      expect(result.current.loading).toBe(false);
-    });
-
-    expect(result.current.iconSrc).toBe(mockObjectUrl);
-    expect(result.current.error).toBe(false);
-  });
-
-  it('uses custom URL when iconType is "url"', async () => {
-    mockHttpSuccess();
-    const svc = {
-      ...baseService,
-      iconType: 'url' as const,
-      iconUrl: 'https://example.com/icon.png',
-    };
-    const { result } = renderHook(() => useIconFetcher(svc));
-
-    await waitFor(() => {
-      expect(result.current.loading).toBe(false);
-    });
-
-    expect(result.current.iconSrc).toBe(mockObjectUrl);
-    // New calling convention: cockpit.http(hostPort, { method, path })
-    expect((window as any).cockpit.http).toHaveBeenCalledWith(
-      'example.com',
-      expect.objectContaining({ method: 'GET', path: '/icon.png' })
-    );
-  });
-
-  it('resets state when service changes', async () => {
-    mockHttpSuccess();
-    const svc1 = { ...baseService, id: 'svc-1', iconType: 'auto' as const };
-    const { result, rerender } = renderHook(
-      ({ svc }) => useIconFetcher(svc),
-      { initialProps: { svc: svc1 } }
-    );
-
-    await waitFor(() => expect(result.current.iconSrc).toBe(mockObjectUrl));
-
-    // Switch to 'none' icon service
-    const svc2 = { ...baseService, id: 'svc-2', iconType: 'none' as const };
-    rerender({ svc: svc2 });
-
     expect(result.current.iconSrc).toBeNull();
     expect(result.current.loading).toBe(false);
   });
 
-  it('calls cockpit.http with correct hostPort and favicon path for auto mode', async () => {
-    mockHttpSuccess();
+  it('returns favicon URL for iconType "auto"', () => {
     const svc = { ...baseService, iconType: 'auto' as const };
-    renderHook(() => useIconFetcher(svc));
-
-    await waitFor(() => {
-      expect((window as any).cockpit.http).toHaveBeenCalledWith(
-        'test-host:8080',
-        expect.objectContaining({ method: 'GET', path: '/favicon.ico' })
-      );
-    });
+    const { result } = renderHook(() => useIconFetcher(svc));
+    expect(result.current.iconSrc).toContain('favicon.ico');
+    expect(result.current.iconSrc).toBe('https://test-host:8080/favicon.ico');
   });
 
-  it('never throws even if cockpit.http is not a function', () => {
-    const oldHttp = (window as any).cockpit.http;
-    delete (window as any).cockpit.http;
+  it('returns custom URL for iconType "url"', () => {
+    const svc = { ...baseService, iconType: 'url' as const, iconUrl: 'https://example.com/icon.png' };
+    const { result } = renderHook(() => useIconFetcher(svc));
+    expect(result.current.iconSrc).toBe('https://example.com/icon.png');
+  });
 
-    const svc = { ...baseService, iconType: 'auto' as const };
-    expect(() => renderHook(() => useIconFetcher(svc))).not.toThrow();
+  it('respects httpsMode for relative port URLs', () => {
+    const svc = { ...baseService, iconType: 'auto' as const, httpsMode: 'http' as const };
+    const { result } = renderHook(() => useIconFetcher(svc));
+    expect(result.current.iconSrc).toContain('http://test-host:8080/favicon.ico');
+  });
 
-    (window as any).cockpit.http = oldHttp;
+  it('returns null for iconType "url" with empty iconUrl', () => {
+    const svc = { ...baseService, iconType: 'url' as const, iconUrl: '' };
+    const { result } = renderHook(() => useIconFetcher(svc));
+    expect(result.current.iconSrc).toBeNull();
   });
 });

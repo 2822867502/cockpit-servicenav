@@ -6,12 +6,12 @@
 
 /* ---- Foundation: force background to PF6 tokens ---- */
 html, body, #root {
-  background-color: var(--pf-t--global--background--color--primary--default) !important;
+  background-color: var(--pf-v5-global--BackgroundColor--100) !important;
 }
 
 .servicenav-page,
 .pf-v5-c-page {
-  background-color: var(--pf-t--global--background--color--primary--default) !important;
+  background-color: var(--pf-v5-global--BackgroundColor--100) !important;
 }
 
 /* ---- Layout ---- */
@@ -25,7 +25,7 @@ html, body, #root {
 
 .servicenav-card {
   transition: box-shadow 0.2s ease, transform 0.15s ease;
-  background-color: var(--pf-t--global--background--color--secondary--default);
+  background-color: var(--pf-v5-global--BackgroundColor--200);
 }
 
 .servicenav-card:hover {
@@ -39,7 +39,7 @@ html, body, #root {
   width: 64px;
   height: 64px;
   border-radius: var(--pf-v5-global--BorderRadius--lg);
-  background: var(--pf-t--global--background--color--secondary--default);
+  background: var(--pf-v5-global--BackgroundColor--200);
   overflow: hidden;
 }
 
@@ -52,7 +52,7 @@ html, body, #root {
 .servicenav-card__icon svg {
   width: 36px;
   height: 36px;
-  color: var(--pf-t--global--icon--color--regular);
+  color: var(--pf-v5-global--icon--Color--regular);
 }
 
 .servicenav-card__icon--sm {
@@ -80,7 +80,7 @@ html, body, #root {
   gap: var(--pf-v5-global--spacer--xs);
   margin-top: var(--pf-v5-global--spacer--sm);
   font-size: var(--pf-v5-global--FontSize--sm);
-  color: var(--pf-t--global--text--color--link--default);
+  color: var(--pf-v5-global--link--Color);
   cursor: pointer;
 }
 
@@ -109,7 +109,7 @@ html, body, #root {
   justify-content: center;
   width: 100%;
   height: 100%;
-  color: var(--pf-t--global--icon--color--regular);
+  color: var(--pf-v5-global--icon--Color--regular);
 }
 
 /* Empty state */
@@ -126,10 +126,10 @@ html, body, #root {
 /* Form URL preview */
 .servicenav-form__url-preview {
   padding: var(--pf-v5-global--spacer--sm);
-  background: var(--pf-t--global--background--color--secondary--default);
+  background: var(--pf-v5-global--BackgroundColor--200);
   border-radius: var(--pf-v5-global--BorderRadius--sm);
   font-size: var(--pf-v5-global--FontSize--sm);
-  color: var(--pf-t--global--text--color--subtle);
+  color: var(--pf-v5-global--Color--200);
   margin-top: var(--pf-v5-global--spacer--xs);
   word-break: break-all;
 }
