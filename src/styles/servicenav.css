@@ -55,13 +55,20 @@
   /* Page */
   --pf-v5-c-page--BackgroundColor: var(--pf-v5-global--BackgroundColor--100);
   /* Form control */
-  --pf-v5-c-form-control--BackgroundColor: var(--pf-v5-global--BackgroundColor--200);
+  --pf-v5-c-form-control--BackgroundColor: #1e1e1e;
   --pf-v5-c-form-control--Color: var(--pf-v5-global--Color--100);
-  --pf-v5-c-form-control--BorderColor: var(--pf-v5-global--BorderColor--100);
+  --pf-v5-c-form-control--BorderRadius: 4px;
+  --pf-v5-c-form-control--BorderTopColor: var(--pf-v5-global--BorderColor--100);
+  --pf-v5-c-form-control--BorderRightColor: var(--pf-v5-global--BorderColor--100);
   --pf-v5-c-form-control--BorderBottomColor: var(--pf-v5-global--BorderColor--100);
+  --pf-v5-c-form-control--BorderLeftColor: var(--pf-v5-global--BorderColor--100);
   /* Menu toggle */
-  --pf-v5-c-menu-toggle--BackgroundColor: var(--pf-v5-global--BackgroundColor--200);
+  --pf-v5-c-menu-toggle--BackgroundColor: #1e1e1e;
   --pf-v5-c-menu-toggle--Color: var(--pf-v5-global--Color--100);
+  --pf-v5-c-menu-toggle__controls--Color: var(--pf-v5-global--Color--200);
+  --pf-v5-c-menu-toggle__text--Color: var(--pf-v5-global--Color--100);
+  --pf-v5-c-menu-toggle__toggle-icon--Color: var(--pf-v5-global--Color--200);
+  --pf-v5-c-menu-toggle--BorderRadius: 4px;
   /* Data list */
   --pf-v5-c-data-list--BackgroundColor: var(--pf-v5-global--BackgroundColor--200);
   --pf-v5-c-data-list--BorderColor: var(--pf-v5-global--BorderColor--100);
@@ -70,11 +77,24 @@
   /* Title */
   --pf-v5-c-title--Color: var(--pf-v5-global--Color--100);
   /* Toggle */
-  --pf-v5-c-toggle-group__button--BackgroundColor: var(--pf-v5-global--BackgroundColor--200);
+  --pf-v5-c-toggle-group__button--BackgroundColor: #1e1e1e;
   --pf-v5-c-toggle-group__button--Color: var(--pf-v5-global--Color--100);
+  --pf-v5-c-toggle-group__button--m-selected--BackgroundColor: #004080;
+  --pf-v5-c-toggle-group__button--m-selected--Color: var(--pf-v5-global--Color--100);
   /* Select */
   --pf-v5-c-select__menu--BackgroundColor: var(--pf-v5-global--BackgroundColor--300);
   --pf-v5-c-select__menu-item--Color: var(--pf-v5-global--Color--100);
+  /* Button */
+  --pf-v5-c-button--m-link--Color: var(--pf-v5-global--link--Color);
+  --pf-v5-c-button--m-plain--Color: var(--pf-v5-global--Color--200);
+  /* Alert */
+  --pf-v5-c-alert--m-inline--BackgroundColor: #2a1f1f;
+  /* Radio */
+  --pf-v5-c-radio__label--Color: var(--pf-v5-global--Color--100);
+  --pf-v5-c-radio__description--Color: var(--pf-v5-global--Color--200);
+  /* Helper text */
+  --pf-v5-c-form__helper-text--Color: var(--pf-v5-global--Color--200);
+  --pf-v5-c-helper-text__item-text--Color: var(--pf-v5-global--Color--200);
 }
 
 /* ======== Shared styles ======== */
