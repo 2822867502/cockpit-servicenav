@@ -42,106 +42,89 @@ html, body, #root {
 .pf-theme-dark label {
   color: #e0e0e0;
 }
-/* Form inputs — override ALL border sides (PF5 uses different colors per side) */
+/* ---- Form controls: clean PF6-style, no harsh borders ---- */
 .pf-theme-dark .pf-v5-c-form-control,
-.pf-theme-dark .pf-v5-c-form-control > input,
 .pf-theme-dark input[type="text"],
 .pf-theme-dark input[type="url"],
 .pf-theme-dark textarea {
-  background-color: #2a2d30 !important;
-  color: #e0e0e0 !important;
-  border-top: 1px solid #3c3f42 !important;
-  border-right: 1px solid #3c3f42 !important;
-  border-bottom: 1px solid #3c3f42 !important;
-  border-left: 1px solid #3c3f42 !important;
-  box-shadow: none !important;
-  border-radius: 6px !important;
-  outline: none !important;
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+  border: none;
+  border-bottom: 1px solid #3c3f42;
+  border-radius: 3px 3px 0 0;
+  box-shadow: none;
+  outline: none;
 }
 .pf-theme-dark .pf-v5-c-form-control:focus-within,
-.pf-theme-dark .pf-v5-c-form-control > input:focus,
 .pf-theme-dark input[type="text"]:focus,
 .pf-theme-dark input[type="url"]:focus,
 .pf-theme-dark textarea:focus {
-  border-color: #419eda !important;
-  border-bottom-color: #419eda !important;
-}
-/* Light mode — rounded */
-.pf-v5-c-form-control,
-.pf-v5-c-form-control > input,
-input[type="text"],
-input[type="url"],
-textarea {
-  border-radius: 6px;
-}
-/* Kill browser autofill white background */
-.pf-theme-dark input:-webkit-autofill,
-.pf-theme-dark input:-webkit-autofill:hover,
-.pf-theme-dark input:-webkit-autofill:focus,
-.pf-theme-dark input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px #2a2d30 inset !important;
-  -webkit-text-fill-color: #e0e0e0 !important;
-  caret-color: #e0e0e0;
-  transition: background-color 9999s;
-  border-radius: 6px !important;
+  border-bottom-color: #419eda;
+  border-bottom-width: 2px;
 }
 .pf-theme-dark .pf-v5-c-form-control::placeholder,
 .pf-theme-dark input::placeholder {
-  color: #6a6e73 !important;
+  color: #6a6e73;
 }
-/* Select / MenuToggle — soft rounded */
-.pf-theme-dark .pf-v5-c-menu-toggle,
-.pf-theme-dark .pf-v5-c-menu-toggle__button {
-  background-color: #2a2d30;
+.pf-theme-dark .pf-v5-c-form-control > input {
+  background: transparent;
   color: #e0e0e0;
-  border: 1px solid #3c3f42;
-  border-radius: 6px;
+  border: none;
+  outline: none;
+}
+/* Autofill */
+.pf-theme-dark input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px #1e1e1e inset !important;
+  -webkit-text-fill-color: #e0e0e0 !important;
+  transition: background-color 9999s;
+}
+
+/* ---- MenuToggle / Select ---- */
+.pf-theme-dark .pf-v5-c-menu-toggle {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+  border-bottom: 1px solid #3c3f42;
+  border-radius: 3px 3px 0 0;
 }
 .pf-theme-dark .pf-v5-c-menu-toggle__controls,
 .pf-theme-dark .pf-v5-c-menu-toggle__toggle-icon {
-  color: #b8bbbe;
+  color: #6a6e73;
 }
-/* Select dropdown menu */
 .pf-theme-dark .pf-v5-c-menu,
-.pf-theme-dark .pf-v5-c-menu__content {
-  background-color: #2a2d30;
-  border: 1px solid #3c3f42;
-  border-radius: 6px;
-}
-.pf-theme-dark .pf-v5-c-menu__item,
-.pf-theme-dark .pf-v5-c-menu__list-item {
-  color: #e0e0e0;
-}
-.pf-theme-dark .pf-v5-c-menu__item:hover,
-.pf-theme-dark .pf-v5-c-menu__item:focus {
-  background-color: #3c3f42;
-}
 .pf-theme-dark .pf-v5-c-select__menu {
   background-color: #2a2d30;
   border: 1px solid #3c3f42;
   border-radius: 6px;
 }
+.pf-theme-dark .pf-v5-c-menu__item,
 .pf-theme-dark .pf-v5-c-select__menu-item {
   color: #e0e0e0;
+  border-radius: 4px;
 }
-.pf-theme-dark .pf-v5-c-select__menu-item:hover,
-.pf-theme-dark .pf-v5-c-select__menu-item:focus {
+.pf-theme-dark .pf-v5-c-menu__item:hover,
+.pf-theme-dark .pf-v5-c-select__menu-item:hover {
   background-color: #3c3f42;
 }
-/* Cards — soft rounded */
+
+/* ---- Cards ---- */
 .pf-theme-dark .pf-v5-c-card {
+  background-color: #1e1e1e;
   border-radius: 8px;
-  border: 1px solid #3c3f42;
+  border: none;
 }
-/* ToggleGroup */
+/* ---- Toggle ---- */
 .pf-theme-dark .pf-v5-c-toggle-group {
   border-radius: 6px;
-  border: 1px solid #3c3f42;
 }
-/* Modal */
+.pf-theme-dark .pf-v5-c-toggle-group__button {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+  border-color: #3c3f42;
+}
+/* ---- Modal ---- */
 .pf-theme-dark .pf-v5-c-modal-box {
+  background-color: #1e1e1e;
   border-radius: 8px;
-  border: 1px solid #3c3f42;
 }
 /* DataList */
 .pf-theme-dark .pf-v5-c-data-list,
