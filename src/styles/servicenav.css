@@ -57,9 +57,9 @@
   /* Form control: border is on ::before/::after pseudo-elements in PF5 */
   --pf-v5-c-form-control--BackgroundColor: #1e1e1e;
   --pf-v5-c-form-control--Color: var(--pf-v5-global--Color--100);
-  --pf-v5-c-form-control--BorderRadius: 4px;
-  --pf-v5-c-form-control--before--BorderRadius: 4px;
-  --pf-v5-c-form-control--after--BorderRadius: 4px;
+  --pf-v5-c-form-control--BorderRadius: 8px;
+  --pf-v5-c-form-control--before--BorderRadius: 8px;
+  --pf-v5-c-form-control--after--BorderRadius: 8px;
   --pf-v5-c-form-control--before--BorderTopColor: var(--pf-v5-global--BorderColor--100);
   --pf-v5-c-form-control--before--BorderRightColor: var(--pf-v5-global--BorderColor--100);
   --pf-v5-c-form-control--before--BorderBottomColor: var(--pf-v5-global--BorderColor--100);
@@ -70,9 +70,9 @@
   /* Menu toggle: border also on pseudo-elements */
   --pf-v5-c-menu-toggle--BackgroundColor: #1e1e1e;
   --pf-v5-c-menu-toggle--Color: var(--pf-v5-global--Color--100);
-  --pf-v5-c-menu-toggle--BorderRadius: 4px;
-  --pf-v5-c-menu-toggle--before--BorderRadius: 4px;
-  --pf-v5-c-menu-toggle--after--BorderRadius: 4px;
+  --pf-v5-c-menu-toggle--BorderRadius: 8px;
+  --pf-v5-c-menu-toggle--before--BorderRadius: 8px;
+  --pf-v5-c-menu-toggle--after--BorderRadius: 8px;
   --pf-v5-c-menu-toggle--before--BorderTopColor: var(--pf-v5-global--BorderColor--100);
   --pf-v5-c-menu-toggle--before--BorderRightColor: var(--pf-v5-global--BorderColor--100);
   --pf-v5-c-menu-toggle--before--BorderBottomColor: var(--pf-v5-global--BorderColor--100);
@@ -98,8 +98,10 @@
   /* Toggle: selected state needs contrast */
   --pf-v5-c-toggle-group__button--BackgroundColor: #1e1e1e;
   --pf-v5-c-toggle-group__button--Color: var(--pf-v5-global--Color--100);
+  --pf-v5-c-toggle-group__text--Color: var(--pf-v5-global--Color--100);
   --pf-v5-c-toggle-group__button--m-selected--BackgroundColor: #004080;
   --pf-v5-c-toggle-group__button--m-selected--Color: #fff;
+  --pf-v5-c-toggle-group__button--m-selected__text--Color: #fff;
   /* Button */
   --pf-v5-c-button--m-link--Color: var(--pf-v5-global--link--Color);
   --pf-v5-c-button--m-plain--Color: var(--pf-v5-global--Color--200);
