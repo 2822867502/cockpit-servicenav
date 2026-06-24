@@ -129,66 +129,38 @@ let currentLang = 'zh_CN'; // DEFAULT to Chinese (not English)
  *   4. Fallback: 'zh_CN' (plugin default)
  */
 function detectLanguage(): string {
-  const sources: string[] = [];
-
-  // 1. Browser language — most reliable indicator of user preference
+  // 1. Browser language — most reliable
   if (typeof navigator !== 'undefined' && navigator.language) {
-    sources.push(`navigator.language=${navigator.language}`);
-    if (/^zh/i.test(navigator.language)) {
-      console.log('[servicenav] Language: navigator.language → zh_CN');
-      return 'zh_CN';
-    }
+    if (/^zh/i.test(navigator.language)) return 'zh_CN';
   }
 
-  // 2. cockpit.locale() — some Cockpit versions return locale this way
+  // 2. cockpit.locale() — some Cockpit versions
   try {
     const cockpit = (window as any).cockpit;
     if (cockpit && typeof cockpit.locale === 'function') {
-      // Call without arguments — may return current locale string
-      const localeResult = cockpit.locale();
-      if (typeof localeResult === 'string' && localeResult.length > 0) {
-        sources.push(`cockpit.locale()=${localeResult}`);
-        const normalizedLocale = localeResult.toLowerCase().replace(/-/g, '_');
-        if (normalizedLocale.includes('zh')) {
-          console.log('[servicenav] Language: cockpit.locale() → zh_CN');
-          return 'zh_CN';
-        }
-      }
-    }
-  } catch (_e) {
-    // cockpit.locale() might throw if called without PO data
-    sources.push('cockpit.locale() threw');
-  }
-
-  // 3. cockpit.language — least reliable (often defaults to 'en')
-  try {
-    const cockpit = (window as any).cockpit;
-    if (cockpit && typeof cockpit.language === 'string' && cockpit.language) {
-      sources.push(`cockpit.language=${cockpit.language}`);
-      if (/^zh/i.test(cockpit.language)) {
-        console.log('[servicenav] Language: cockpit.language → zh_CN');
+      const lr = cockpit.locale();
+      if (typeof lr === 'string' && lr.toLowerCase().replace(/-/g, '_').includes('zh')) {
         return 'zh_CN';
       }
     }
-  } catch (_e) { /* ignore */ }
+  } catch (_e) { /* may throw if called without PO data */ }
 
-  // 4. If browser language is explicitly English, use English
-  if (typeof navigator !== 'undefined' && navigator.language && /^en/i.test(navigator.language)) {
-    console.log('[servicenav] Language: English browser detected, using en');
-    return 'en';
-  }
-
-  // 5. If cockpit.language is explicitly English, use English
+  // 3. cockpit.language
   try {
     const cockpit = (window as any).cockpit;
-    if (cockpit && typeof cockpit.language === 'string' && /^en/i.test(cockpit.language)) {
-      console.log('[servicenav] Language: English cockpit detected, using en');
-      return 'en';
+    if (cockpit && typeof cockpit.language === 'string' && /^zh/i.test(cockpit.language)) {
+      return 'zh_CN';
     }
   } catch (_e) { /* ignore */ }
 
-  // 6. Default to Chinese for all other cases (Chinese servers, unknown browsers, etc.)
-  console.log('[servicenav] Language: defaulting to zh_CN. Sources checked:', sources.join(', '));
+  // 4. Explicitly English → use English
+  if (typeof navigator !== 'undefined' && navigator.language && /^en/i.test(navigator.language)) return 'en';
+  try {
+    const cockpit = (window as any).cockpit;
+    if (cockpit && typeof cockpit.language === 'string' && /^en/i.test(cockpit.language)) return 'en';
+  } catch (_e) { /* ignore */ }
+
+  // 5. Default → Chinese
   return 'zh_CN';
 }
 
@@ -197,11 +169,6 @@ function detectLanguage(): string {
  */
 export function initI18n(): void {
   currentLang = detectLanguage();
-  console.log('[servicenav] i18n initialized. currentLang =', currentLang);
-  // Verify: test translation of a known key
-  const testResult = _('Service Navigation');
-  console.log('[servicenav] _("Service Navigation") =', testResult);
-
   if (typeof window !== 'undefined') {
     (window as any)._ = _;
   }

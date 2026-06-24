@@ -6,9 +6,12 @@
   },
   "tools": {
     "servicenav": {
-      "label": "Service Navigation",
+      "label": "服务导航",
       "path": "index.html",
-      "order": 90
+      "order": 90,
+      "keywords": [
+        { "matches": ["service", "nav", "navigation", "服务", "导航"] }
+      ]
     }
   },
   "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:; connect-src 'self' https: http:;"

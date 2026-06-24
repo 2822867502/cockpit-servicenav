@@ -1,62 +1,37 @@
 /**
  * Configuration file access layer for the servicenav plugin.
  *
- * Wraps the Cockpit `cockpit.file()` API to read/write the plugin's JSON config file
- * located at /etc/cockpit/servicenav.conf. Provides:
- * - Default config generation when no file exists
- * - Atomic reads with tag-based conflict detection
- * - Atomic read-modify-write via modify()
- * - File watching for external changes
- *
- * In development/test environments without Cockpit, the mockCockpit layer handles storage.
+ * Wraps Cockpit's `cockpit.file()` API for atomic JSON config read/write.
+ * All data flowing through this module is normalized to prevent
+ * Symbol.iterator errors from malformed config files.
  */
 
 import type { ServicenavConfig, ServiceEntry, ViewMode } from './types';
 
 /**
- * Safely coerce a value to an array. If the value is not an array
- * (e.g., a malformed JSON object, null, undefined), returns an empty array.
- *
- * This is critical because Cockpit's JSON file API may return
- * config data where `services` is a non-array object if the config
- * file was manually edited or corrupted. Using such a value with
- * spread operators or .map()/.filter() throws:
- *   TypeError: object is not iterable (cannot read property Symbol(Symbol.iterator))
+ * Safely coerce a value to an array. Prevents "object is not iterable"
+ * errors when malformed JSON config has services as a non-array value.
  */
 export function ensureArray<T>(value: unknown, defaultValue: T[] = []): T[] {
   return Array.isArray(value) ? (value as T[]) : defaultValue;
 }
 
-/** Path to the plugin configuration file on the Cockpit server */
 const CONFIG_PATH = '/etc/cockpit/servicenav.conf';
-
-/** Current config schema version */
 const CONFIG_VERSION = 1;
 
-/** Default configuration used when no config file exists */
 const DEFAULT_CONFIG: ServicenavConfig = {
   version: CONFIG_VERSION,
   viewMode: 'grid',
   services: [],
 };
 
-/**
- * Create a default configuration object.
- * Always returns a fresh copy to prevent mutation.
- */
+/** Return a fresh default config (no reference sharing). */
 export function createDefaultConfig(): ServicenavConfig {
   return JSON.parse(JSON.stringify(DEFAULT_CONFIG));
 }
 
-/**
- * Get the cockpit.file() wrapper for the config.
- *
- * Uses JSON syntax for automatic parsing/stringifying.
- * Returns a file proxy that supports read(), replace(), modify(), and watch().
- */
+/** Access cockpit.file() with JSON syntax for auto-parse/stringify. */
 function getConfigFile() {
-  // Access the global `cockpit` object provided by Cockpit's shell
-  // In dev/test, this is provided by the mock layer
   const cockpit = (window as any).cockpit;
   if (!cockpit || !cockpit.file) {
     throw new Error(
@@ -69,66 +44,44 @@ function getConfigFile() {
 
 /**
  * Read the current configuration from disk.
- *
- * If the config file does not exist (first run), returns the default config.
- * Automatically migrates old schema versions if needed.
- *
- * @returns Promise resolving to the parsed configuration and its current tag
+ * Returns defaults if file doesn't exist or can't be read.
  */
 export function readConfig(): Promise<{ config: ServicenavConfig; tag: string }> {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     try {
       const file = getConfigFile();
-      file
-        .read()
+      file.read()
         .then((rawResult: unknown) => {
-          // DIAGNOSTIC: log the raw result type from cockpit.file().read()
-          console.log('[servicenav] config.read() raw type:', typeof rawResult,
-            'isArray:', Array.isArray(rawResult));
-
-          // Safely extract content and tag — cockpit returns [content, tag]
-          // but if the bridge returns something unexpected, we default to null
+          // cockpit.file().read() returns [content, tag] array.
+          // Extract safely — if format is unexpected, use defaults.
           let content: ServicenavConfig | null = null;
           let tag = '-';
+
           if (Array.isArray(rawResult) && rawResult.length >= 2) {
             content = rawResult[0] as ServicenavConfig | null;
-            tag = String(rawResult[1]);
+            tag = String(rawResult[1] ?? '-');
           }
 
-          console.log('[servicenav] config.read() content type:', typeof content,
-            'services type:', content ? typeof content.services : 'N/A',
-            'isArray:', content ? Array.isArray(content.services) : 'N/A');
-
-          if (content === null) {
-            // File doesn't exist - return defaults
+          if (!content || typeof content !== 'object') {
             resolve({ config: createDefaultConfig(), tag: '-' });
           } else {
-            // Migrate if needed
             const migrated = migrateConfig(content);
             resolve({ config: migrated, tag });
           }
         })
         .catch((error: Error) => {
-          console.error('[servicenav] Failed to read config:', error?.message || error);
-          // On read error, return defaults so the UI still works
+          console.error('[servicenav] readConfig failed:', error?.message || error);
           resolve({ config: createDefaultConfig(), tag: '-' });
         });
     } catch (error) {
-      console.error('[servicenav] getConfigFile() failed:', error);
-      reject(error);
+      console.error('[servicenav] readConfig init failed:', error);
+      resolve({ config: createDefaultConfig(), tag: '-' });
     }
   });
 }
 
 /**
- * Write configuration to disk.
- *
- * Uses atomic replacement via rename(). If an expectedTag is provided,
- * the write only succeeds if the file hasn't been modified since that tag.
- *
- * @param config - The configuration to write
- * @param expectedTag - Optional tag from a previous read for optimistic locking
- * @returns Promise resolving to the new tag string
+ * Write configuration to disk atomically.
  */
 export function writeConfig(
   config: ServicenavConfig,
@@ -145,11 +98,7 @@ export function writeConfig(
         .then((newTag: string) => resolve(newTag))
         .catch((error: any) => {
           if (error?.problem === 'change-conflict') {
-            reject(
-              new Error(
-                'Configuration was modified by another session. Please reload and try again.'
-              )
-            );
+            reject(new Error('Configuration was modified by another session. Please reload and try again.'));
           } else {
             reject(new Error(`Failed to write configuration: ${error?.message || error}`));
           }
@@ -161,13 +110,8 @@ export function writeConfig(
 }
 
 /**
- * Atomically modify the configuration using a callback function.
- *
- * Uses cockpit.file().modify() which handles the read-modify-write cycle
- * with automatic retry on concurrent modification conflicts.
- *
- * @param fn - Transformation function (receives current config, returns modified config)
- * @returns Promise resolving to the new config and tag
+ * Atomically modify the configuration.
+ * Uses cockpit.file().modify() for read-modify-write with retry.
  */
 export function modifyConfig(
   fn: (config: ServicenavConfig) => ServicenavConfig
@@ -175,25 +119,28 @@ export function modifyConfig(
   return new Promise((resolve, reject) => {
     try {
       const file = getConfigFile();
-
-      // Provide initial content so we don't fail if file doesn't exist yet
       const initialContent = createDefaultConfig();
 
       file.modify(
         (current: ServicenavConfig) => {
-          const config = current || initialContent;
+          const config = (current && typeof current === 'object') ? current : initialContent;
+          // Normalize services before passing to callback
+          config.services = ensureArray(config.services);
           return fn(config);
         },
         initialContent,
         '-'
       )
-        .then(([newContent, newTag]: [ServicenavConfig, string]) => {
-          resolve({ config: newContent, tag: newTag });
+        .then((result: unknown) => {
+          // Safe extraction: cockpit.file().modify() returns [newContent, newTag]
+          if (Array.isArray(result) && result.length >= 2) {
+            resolve({ config: result[0] as ServicenavConfig, tag: String(result[1] ?? '-') });
+          } else {
+            resolve({ config: createDefaultConfig(), tag: '-' });
+          }
         })
         .catch((error: any) => {
-          reject(
-            new Error(`Failed to modify configuration: ${error?.message || error}`)
-          );
+          reject(new Error(`Failed to modify configuration: ${error?.message || error}`));
         });
     } catch (error) {
       reject(error);
@@ -203,12 +150,6 @@ export function modifyConfig(
 
 /**
  * Watch the configuration file for external changes.
- *
- * The callback fires whenever the config file is modified on disk
- * (including by our own writeConfig/modifyConfig calls).
- *
- * @param callback - Called with the updated config on each change
- * @returns A function to call to stop watching (removes the listener)
  */
 export function watchConfig(
   callback: (config: ServicenavConfig) => void
@@ -216,59 +157,45 @@ export function watchConfig(
   try {
     const file = getConfigFile();
     const handle = file.watch((content: ServicenavConfig | null) => {
-      console.log('[servicenav] config.watch() content type:', typeof content,
-        'services type:', content ? typeof content.services : 'N/A',
-        'isArray:', content ? Array.isArray(content.services) : 'N/A');
-      if (content !== null) {
+      if (content && typeof content === 'object') {
+        content.services = ensureArray((content as any).services);
         callback(content);
       }
     });
-    // Return unwatch function
     return () => {
       if (handle && typeof handle.remove === 'function') {
         handle.remove();
       }
     };
   } catch (error) {
-    console.error('Failed to watch config file:', error);
-    return () => {}; // No-op unwatch
+    console.error('[servicenav] watchConfig failed:', error);
+    return () => {};
   }
 }
 
 /**
- * Migrate older config schema versions to the current version.
- *
- * Currently handles v0 -> v1 migration (if any future changes).
+ * Normalize config data — ensures all fields have correct types.
  */
 function migrateConfig(config: any): ServicenavConfig {
   if (!config || typeof config !== 'object') {
     return createDefaultConfig();
   }
 
-  // Ensure version field exists
   if (typeof config.version !== 'number') {
     config.version = 0;
   }
-
-  // v0 -> v1 migration (placeholder for future)
   if (config.version < 1) {
     config.version = 1;
   }
 
-  // Ensure required fields exist — use ensureArray to guard against
-  // non-array values (objects, null, etc.) from malformed config files
   config.services = ensureArray(config.services);
 
   if (!config.viewMode || !['grid', 'list'].includes(config.viewMode)) {
     config.viewMode = 'grid';
   }
 
-  // Normalize service entries — guard against null/undefined entries
-  // that could appear in a manually-edited or corrupted config file
-  config.services = config.services.map((s: any, _index: number) => {
-    // If the entry is null, undefined, or not an object, skip it by
-    // returning an object with a fresh generated ID. This prevents
-    // TypeError from accessing .id / .name on null values.
+  // Normalize each service entry
+  config.services = config.services.map((s: any) => {
     if (s == null || typeof s !== 'object') {
       return {
         id: generateId(),
@@ -296,21 +223,13 @@ function migrateConfig(config: any): ServicenavConfig {
   return config as ServicenavConfig;
 }
 
-/**
- * Generate a unique ID for a new service entry.
- * Uses crypto.randomUUID if available, otherwise a simple fallback.
- */
 export function generateId(): string {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     return crypto.randomUUID();
   }
-  // Fallback: time-based + random
   return 'svc-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 11);
 }
 
-/**
- * Create a new service entry with default values and generated metadata.
- */
 export function createServiceEntry(overrides?: Partial<ServiceEntry>): ServiceEntry {
   const now = new Date().toISOString();
   return {
@@ -326,18 +245,10 @@ export function createServiceEntry(overrides?: Partial<ServiceEntry>): ServiceEn
   };
 }
 
-/**
- * Get the current view mode from the configuration.
- * Used by the useViewMode hook.
- */
 export function getViewMode(config: ServicenavConfig): ViewMode {
   return config.viewMode || 'grid';
 }
 
-/**
- * Set the view mode in the configuration.
- * Used by the useViewMode hook.
- */
 export function setViewMode(config: ServicenavConfig, mode: ViewMode): ServicenavConfig {
   return { ...config, viewMode: mode };
 }
