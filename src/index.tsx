@@ -21,18 +21,21 @@ async function bootstrap(): Promise<void> {
       await import('./lib/mockCockpit');
     }
 
-    // Phase 2: sync dark-mode theme from parent Cockpit BEFORE first render
-    try {
-      if (window.parent.document.documentElement.classList.contains('pf-theme-dark')) {
-        document.documentElement.classList.add('pf-theme-dark');
-      }
-      // Also set a MutationObserver for ongoing sync
-      const observer = new MutationObserver(() => {
-        const isDark = window.parent.document.documentElement.classList.contains('pf-theme-dark');
+    // Phase 2: sync dark-mode theme from parent Cockpit BEFORE first render.
+    // Cockpit may use pf-theme-dark (PF5) or pf-v6-theme-dark (PF6).
+    // We must check for both and sync to our iframe's <html>.
+    function syncTheme() {
+      try {
+        const parentCls = window.parent.document.documentElement.classList;
+        const isDark = parentCls.contains('pf-theme-dark') || parentCls.contains('pf-v6-theme-dark');
         document.documentElement.classList.toggle('pf-theme-dark', isDark);
-      });
+      } catch (_) { /* cross-origin */ }
+    }
+    syncTheme();
+    try {
+      const observer = new MutationObserver(syncTheme);
       observer.observe(window.parent.document.documentElement, { attributes: true, attributeFilter: ['class'] });
-    } catch (_) { /* cross-origin — ignore */ }
+    } catch (_) { /* cross-origin */ }
 
     // Phase 3: initialize language BEFORE any component calls _()
     initI18n();

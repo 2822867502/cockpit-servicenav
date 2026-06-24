@@ -30,12 +30,13 @@ const App: React.FC = () => {
   const [modal, setModal] = useState<ModalState>({ type: null });
   const [deleteTarget, setDeleteTarget] = useState<ServiceEntry | null>(null);
 
-  // ---- Theme sync: apply parent Cockpit theme before first paint ----
+  // ---- Theme sync: detect pf-theme-dark (PF5) and pf-v6-theme-dark (PF6) ----
   useEffect(() => {
     const sync = () => {
       try {
         const p = window.parent.document.documentElement.classList;
-        document.documentElement.classList.toggle('pf-theme-dark', p.contains('pf-theme-dark'));
+        const isDark = p.contains('pf-theme-dark') || p.contains('pf-v6-theme-dark');
+        document.documentElement.classList.toggle('pf-theme-dark', isDark);
       } catch (_) { /* cross-origin */ }
     };
     sync();

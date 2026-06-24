@@ -39,28 +39,29 @@ async function fetchViaCockpitHttp(url: string): Promise<string | null> {
 
     if (!response) return null;
 
-    // Case 1: response has .blob() method (newer Cockpit API)
-    if (typeof response.blob === 'function') {
+    // Case 1: response is the raw body directly (ArrayBuffer, Uint8Array) — older Cockpit
+    if (response instanceof ArrayBuffer || response instanceof Uint8Array) {
+      const blob = new Blob([response], { type: 'image/x-icon' });
+      return blob.size > 0 ? URL.createObjectURL(blob) : null;
+    }
+
+    // Case 2: response is a raw string (older Cockpit)
+    if (typeof response === 'string' && response.length > 0) {
+      const blob = new Blob([response], { type: 'image/x-icon' });
+      return blob.size > 0 ? URL.createObjectURL(blob) : null;
+    }
+
+    // Case 3: response is an object with .blob() method (new Cockpit API)
+    if (response && typeof response.blob === 'function') {
       const blob = await response.blob();
-      if (blob && blob.size > 0) {
-        return URL.createObjectURL(blob);
-      }
-      return null;
+      return (blob && blob.size > 0) ? URL.createObjectURL(blob) : null;
     }
 
-    // Case 2: response is raw ArrayBuffer or binary string
-    const body = response.body || response;
-    if (body instanceof ArrayBuffer || body instanceof Uint8Array) {
+    // Case 4: response has .body property (ArrayBuffer or string)
+    const body = (response as any).body;
+    if (body) {
       const blob = new Blob([body], { type: 'image/x-icon' });
-      if (blob.size > 0) return URL.createObjectURL(blob);
-      return null;
-    }
-
-    // Case 3: string response
-    if (typeof body === 'string' && body.length > 0) {
-      const blob = new Blob([body], { type: 'image/x-icon' });
-      if (blob.size > 0) return URL.createObjectURL(blob);
-      return null;
+      return blob.size > 0 ? URL.createObjectURL(blob) : null;
     }
 
     return null;
