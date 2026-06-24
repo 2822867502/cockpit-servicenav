@@ -140,7 +140,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({ service, onSave, onClo
           isRequired
           fieldId="service-name"
           validated={errors?.name ? 'error' : 'default'}
-          helperTextInvalid={errors?.name}
+          helperText={errors?.name}
         >
           <TextInput
             id="service-name"
@@ -158,7 +158,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({ service, onSave, onClo
           isRequired
           fieldId="service-url"
           validated={errors?.url ? 'error' : 'default'}
-          helperTextInvalid={errors?.url}
+          helperText={errors?.url}
         >
           <InputGroup>
             <InputGroupItem isFill>
@@ -217,7 +217,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({ service, onSave, onClo
             isRequired
             fieldId="icon-url-input"
             validated={errors?.iconUrl ? 'error' : 'default'}
-            helperTextInvalid={errors?.iconUrl}
+            helperText={errors?.iconUrl}
           >
             <TextInput
               id="icon-url-input"
@@ -235,7 +235,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({ service, onSave, onClo
           label={_('Description')}
           fieldId="service-description"
           validated={errors?.description ? 'error' : 'default'}
-          helperTextInvalid={errors?.description}
+          helperText={errors?.description}
         >
           <TextArea
             id="service-description"

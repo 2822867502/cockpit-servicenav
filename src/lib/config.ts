@@ -1,226 +1,94 @@
 /**
- * Configuration file access layer for the servicenav plugin.
+ * Configuration module — uses cockpit.localStorage for data persistence.
  *
- * Wraps Cockpit's `cockpit.file()` API for atomic JSON config read/write.
- * All data flowing through this module is normalized to prevent
- * Symbol.iterator errors from malformed config files.
+ * Replaces cockpit.file() which requires filesystem permissions that may
+ * not be granted in all Cockpit deployments. cockpit.localStorage is
+ * always available and requires no special permissions.
  */
 
 import type { ServicenavConfig, ServiceEntry, ViewMode } from './types';
 
+const STORAGE_KEY = 'servicenav-config';
+
 /**
  * Safely coerce a value to an array. Prevents "object is not iterable"
- * errors when malformed JSON config has services as a non-array value.
+ * errors when stored data has services as a non-array value.
  */
 export function ensureArray<T>(value: unknown, defaultValue: T[] = []): T[] {
   return Array.isArray(value) ? (value as T[]) : defaultValue;
 }
 
-const CONFIG_PATH = '/etc/cockpit/servicenav.conf';
-const CONFIG_VERSION = 1;
-
-const DEFAULT_CONFIG: ServicenavConfig = {
-  version: CONFIG_VERSION,
-  viewMode: 'grid',
-  services: [],
-};
-
-/** Return a fresh default config (no reference sharing). */
-export function createDefaultConfig(): ServicenavConfig {
-  return JSON.parse(JSON.stringify(DEFAULT_CONFIG));
-}
-
-/** Access cockpit.file() with JSON syntax for auto-parse/stringify. */
-function getConfigFile() {
+function getCockpitStorage() {
   const cockpit = (window as any).cockpit;
-  if (!cockpit || !cockpit.file) {
-    throw new Error(
-      'Cockpit runtime not available. Ensure the plugin is loaded inside Cockpit ' +
-      'or the mock cockpit layer is initialized for development.'
-    );
+  if (cockpit && cockpit.localStorage) {
+    return cockpit.localStorage;
   }
-  return cockpit.file(CONFIG_PATH, { syntax: JSON });
+  // Fallback for dev/test: use browser localStorage
+  if (typeof localStorage !== 'undefined') {
+    return localStorage;
+  }
+  // Last resort: in-memory store
+  const mem: Record<string, string> = {};
+  return {
+    getItem: (k: string) => mem[k] ?? null,
+    setItem: (k: string, v: string) => { mem[k] = v; },
+    removeItem: (k: string) => { delete mem[k]; },
+  };
 }
 
-/**
- * Read the current configuration from disk.
- * Returns defaults if file doesn't exist or can't be read.
- */
-export function readConfig(): Promise<{ config: ServicenavConfig; tag: string }> {
-  return new Promise((resolve) => {
-    try {
-      const file = getConfigFile();
-      file.read()
-        .then((rawResult: unknown) => {
-          // cockpit.file().read() returns [content, tag] array.
-          // Extract safely — if format is unexpected, use defaults.
-          let content: ServicenavConfig | null = null;
-          let tag = '-';
-
-          if (Array.isArray(rawResult) && rawResult.length >= 2) {
-            content = rawResult[0] as ServicenavConfig | null;
-            tag = String(rawResult[1] ?? '-');
-          }
-
-          if (!content || typeof content !== 'object') {
-            resolve({ config: createDefaultConfig(), tag: '-' });
-          } else {
-            const migrated = migrateConfig(content);
-            resolve({ config: migrated, tag });
-          }
-        })
-        .catch((error: Error) => {
-          console.error('[servicenav] readConfig failed:', error?.message || error);
-          resolve({ config: createDefaultConfig(), tag: '-' });
-        });
-    } catch (error) {
-      console.error('[servicenav] readConfig init failed:', error);
-      resolve({ config: createDefaultConfig(), tag: '-' });
-    }
-  });
+export function createDefaultConfig(): ServicenavConfig {
+  return {
+    version: 1,
+    viewMode: 'grid',
+    services: [],
+  };
 }
 
-/**
- * Write configuration to disk atomically.
- */
-export function writeConfig(
-  config: ServicenavConfig,
-  expectedTag?: string
-): Promise<string> {
-  return new Promise((resolve, reject) => {
-    try {
-      const file = getConfigFile();
-      const promise = expectedTag
-        ? file.replace(config, expectedTag)
-        : file.replace(config);
-
-      promise
-        .then((newTag: string) => resolve(newTag))
-        .catch((error: any) => {
-          if (error?.problem === 'change-conflict') {
-            reject(new Error('Configuration was modified by another session. Please reload and try again.'));
-          } else {
-            reject(new Error(`Failed to write configuration: ${error?.message || error}`));
-          }
-        });
-    } catch (error) {
-      reject(error);
-    }
-  });
-}
-
-/**
- * Atomically modify the configuration.
- * Uses cockpit.file().modify() for read-modify-write with retry.
- */
-export function modifyConfig(
-  fn: (config: ServicenavConfig) => ServicenavConfig
-): Promise<{ config: ServicenavConfig; tag: string }> {
-  return new Promise((resolve, reject) => {
-    try {
-      const file = getConfigFile();
-      const initialContent = createDefaultConfig();
-
-      file.modify(
-        (current: ServicenavConfig) => {
-          const config = (current && typeof current === 'object') ? current : initialContent;
-          // Normalize services before passing to callback
-          config.services = ensureArray(config.services);
-          return fn(config);
-        },
-        initialContent,
-        '-'
-      )
-        .then((result: unknown) => {
-          // Safe extraction: cockpit.file().modify() returns [newContent, newTag]
-          if (Array.isArray(result) && result.length >= 2) {
-            resolve({ config: result[0] as ServicenavConfig, tag: String(result[1] ?? '-') });
-          } else {
-            resolve({ config: createDefaultConfig(), tag: '-' });
-          }
-        })
-        .catch((error: any) => {
-          reject(new Error(`Failed to modify configuration: ${error?.message || error}`));
-        });
-    } catch (error) {
-      reject(error);
-    }
-  });
-}
-
-/**
- * Watch the configuration file for external changes.
- */
-export function watchConfig(
-  callback: (config: ServicenavConfig) => void
-): () => void {
+/** Read config from storage. Always returns a valid config. */
+export function readConfig(): ServicenavConfig {
   try {
-    const file = getConfigFile();
-    const handle = file.watch((content: ServicenavConfig | null) => {
-      if (content && typeof content === 'object') {
-        content.services = ensureArray((content as any).services);
-        callback(content);
-      }
-    });
-    return () => {
-      if (handle && typeof handle.remove === 'function') {
-        handle.remove();
-      }
-    };
-  } catch (error) {
-    console.error('[servicenav] watchConfig failed:', error);
-    return () => {};
-  }
-}
+    const storage = getCockpitStorage();
+    const raw = storage.getItem(STORAGE_KEY);
+    if (!raw) return createDefaultConfig();
 
-/**
- * Normalize config data — ensures all fields have correct types.
- */
-function migrateConfig(config: any): ServicenavConfig {
-  if (!config || typeof config !== 'object') {
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return createDefaultConfig();
+
+    if (typeof parsed.version !== 'number') parsed.version = 1;
+    if (!parsed.viewMode || !['grid', 'list'].includes(parsed.viewMode)) {
+      parsed.viewMode = 'grid';
+    }
+    parsed.services = ensureArray(parsed.services).map((s: any) => {
+      if (!s || typeof s !== 'object') {
+        return { id: generateId(), name: '', url: '', iconType: 'auto', iconUrl: null, description: '', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+      }
+      return {
+        id: s.id || generateId(),
+        name: String(s.name || ''),
+        url: String(s.url || ''),
+        iconType: ['auto', 'url', 'none'].includes(s.iconType) ? s.iconType : 'auto',
+        iconUrl: s.iconUrl || null,
+        description: String(s.description || ''),
+        createdAt: s.createdAt || new Date().toISOString(),
+        updatedAt: s.updatedAt || new Date().toISOString(),
+      };
+    });
+
+    return parsed as ServicenavConfig;
+  } catch (err) {
+    console.error('[servicenav] readConfig failed:', err);
     return createDefaultConfig();
   }
+}
 
-  if (typeof config.version !== 'number') {
-    config.version = 0;
+/** Write config to storage. */
+export function writeConfig(config: ServicenavConfig): void {
+  try {
+    const storage = getCockpitStorage();
+    storage.setItem(STORAGE_KEY, JSON.stringify(config));
+  } catch (err) {
+    console.error('[servicenav] writeConfig failed:', err);
   }
-  if (config.version < 1) {
-    config.version = 1;
-  }
-
-  config.services = ensureArray(config.services);
-
-  if (!config.viewMode || !['grid', 'list'].includes(config.viewMode)) {
-    config.viewMode = 'grid';
-  }
-
-  // Normalize each service entry
-  config.services = config.services.map((s: any) => {
-    if (s == null || typeof s !== 'object') {
-      return {
-        id: generateId(),
-        name: '',
-        url: '',
-        iconType: 'auto' as const,
-        iconUrl: null,
-        description: '',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-    }
-    return {
-      id: s.id || generateId(),
-      name: String(s.name || ''),
-      url: String(s.url || ''),
-      iconType: ['auto', 'url', 'none'].includes(s.iconType) ? s.iconType : 'auto',
-      iconUrl: s.iconUrl || null,
-      description: String(s.description || ''),
-      createdAt: s.createdAt || new Date().toISOString(),
-      updatedAt: s.updatedAt || new Date().toISOString(),
-    };
-  });
-
-  return config as ServicenavConfig;
 }
 
 export function generateId(): string {
@@ -232,23 +100,5 @@ export function generateId(): string {
 
 export function createServiceEntry(overrides?: Partial<ServiceEntry>): ServiceEntry {
   const now = new Date().toISOString();
-  return {
-    id: generateId(),
-    name: '',
-    url: '',
-    iconType: 'auto',
-    iconUrl: null,
-    description: '',
-    createdAt: now,
-    updatedAt: now,
-    ...overrides,
-  };
-}
-
-export function getViewMode(config: ServicenavConfig): ViewMode {
-  return config.viewMode || 'grid';
-}
-
-export function setViewMode(config: ServicenavConfig, mode: ViewMode): ServicenavConfig {
-  return { ...config, viewMode: mode };
+  return { id: generateId(), name: '', url: '', iconType: 'auto', iconUrl: null, description: '', createdAt: now, updatedAt: now, ...overrides };
 }

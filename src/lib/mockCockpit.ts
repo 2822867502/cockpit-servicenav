@@ -1,165 +1,42 @@
 /**
  * Development-only mock of the Cockpit global API.
  *
- * When running outside the Cockpit shell (e.g., during `npm run watch` development),
- * the real `cockpit` global is not available. This mock provides the minimal API
- * surface needed by the plugin, using localStorage as a backing store for config.
- *
- * This file is NOT included in production builds or test runs.
- * Tests use their own mock in test/__mocks__/cockpit.ts.
+ * When running outside Cockpit (e.g., `npm run watch`), the real
+ * `cockpit` global is not available. This mock uses browser
+ * localStorage as a backing store for config persistence.
  */
 
-import type { ServicenavConfig } from './types';
-import { createDefaultConfig } from './config';
-
-const STORAGE_KEY = 'cockpit-servicenav-mock-config';
-
-// -- Mock cockpit.file() implementation using localStorage --
-
-interface MockFileHandle {
-  read: () => Promise<[any, string]>;
-  replace: (content: any, expectedTag?: string) => Promise<string>;
-  modify: (callback: (current: any) => any, initial?: any, initialTag?: string) => Promise<[any, string]>;
-  watch: (callback: (content: any) => void) => { remove: () => void };
-  path: string;
-}
-
-function createMockFile(path: string): MockFileHandle {
-  let tag = '0';
-
-  function getStored(): ServicenavConfig | null {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : null;
-    } catch {
-      return null;
-    }
-  }
-
-  function setStored(config: ServicenavConfig): void {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
-  }
-
-  function nextTag(): string {
-    tag = String(parseInt(tag, 10) + 1);
-    return tag;
-  }
-
-  const watchers: Array<(content: any) => void> = [];
-
-  function notify(content: ServicenavConfig | null): void {
-    watchers.forEach((cb) => cb(content));
-  }
-
-  return {
-    path,
-
-    read(): Promise<[any, string]> {
-      const content = getStored();
-      if (content === null) {
-        return Promise.resolve([null, '-']);
-      }
-      return Promise.resolve([content, tag]);
-    },
-
-    replace(content: any, expectedTag?: string): Promise<string> {
-      if (expectedTag !== undefined && expectedTag !== tag) {
-        const err = new Error('Configuration was modified by another session.');
-        (err as any).problem = 'change-conflict';
-        return Promise.reject(err);
-      }
-      if (content === null) {
-        localStorage.removeItem(STORAGE_KEY);
-      } else {
-        setStored(content);
-      }
-      const newTag = nextTag();
-      notify(content);
-      return Promise.resolve(newTag);
-    },
-
-    modify(
-      callback: (current: any) => any,
-      initial?: any,
-      _initialTag?: string
-    ): Promise<[any, string]> {
-      let current = getStored();
-      if (current === null) {
-        current = initial || createDefaultConfig();
-      }
-      const updated = callback(current);
-      if (updated === undefined) {
-        return Promise.resolve([current, tag]);
-      }
-      setStored(updated);
-      const newTag = nextTag();
-      notify(updated);
-      return Promise.resolve([updated, newTag]);
-    },
-
-    watch(callback: (content: any) => void): { remove: () => void } {
-      watchers.push(callback);
-      // Immediately notify with current content
-      const content = getStored();
-      if (content !== null) {
-        setTimeout(() => callback(content), 0);
-      }
-      return {
-        remove(): void {
-          const idx = watchers.indexOf(callback);
-          if (idx >= 0) watchers.splice(idx, 1);
-        },
-      };
-    },
-  };
-}
-
-// -- Mock cockpit global --
+const STORAGE_KEY = 'servicenav-config';
 
 const mockCockpit = {
-  file: (path: string, _options?: any) => createMockFile(path),
-
-  gettext: (text: string): string => text, // Identity (no translation in dev)
-
-  locale: (_poData: any): void => {
-    // No-op in dev mode
+  localStorage: {
+    getItem: (key: string): string | null => {
+      try { return localStorage.getItem(key); } catch { return null; }
+    },
+    setItem: (key: string, value: string): void => {
+      try { localStorage.setItem(key, value); } catch { /* quota exceeded */ }
+    },
+    removeItem: (key: string): void => {
+      try { localStorage.removeItem(key); } catch { /* ignore */ }
+    },
   },
 
-  language: 'en',
-
-  location: {
-    path: [] as string[],
-    options: {} as Record<string, any>,
-    href: '',
-    go: (_path: any, _options?: any) => {},
-    replace: (_path: any, _options?: any) => {},
-    decode: (_href: string, _options?: any) => ([] as string[]),
-    encode: (_path: any, _options?: any) => '',
-  },
-
-  // Mock cockpit.http() — tries fetch, falls back gracefully on failure.
-  // In dev mode, the browser makes the request directly (no Cockpit proxy).
+  // cockpit.http() — delegates to browser fetch for icon loading in dev
   http: async (url: string, _options?: any) => {
-    try {
-      const response = await fetch(url, { signal: AbortSignal.timeout(3000) });
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-      const blob = await response.blob();
-      return { blob: () => Promise.resolve(blob), status: response.status };
-    } catch {
-      throw new Error('Failed to fetch icon');
-    }
+    const response = await fetch(url, { signal: AbortSignal.timeout(3000) });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const blob = await response.blob();
+    return { blob: () => Promise.resolve(blob), status: response.status };
   },
+
+  gettext: (text: string): string => text,
+  locale: (_poData?: any): any => undefined,
+  language: 'en',
 
   jump: (_path: string, _host?: string) => {
     console.log('[mock] cockpit.jump:', _path, _host);
   },
-
-  hidden: false,
 };
 
-// Install mock globally
 (window as any).cockpit = mockCockpit;
-
-console.log('[servicenav] Dev mode: mock cockpit API loaded. Config stored in localStorage.');
+console.log('[servicenav] Dev mode: mock cockpit loaded. Config via localStorage key:', STORAGE_KEY);

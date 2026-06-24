@@ -1,109 +1,42 @@
 /**
  * Full mock of the Cockpit global API for testing.
  *
- * Provides in-memory config storage, identity translation,
- * and test-friendly defaults for all cockpit.* methods used by the plugin.
+ * Provides in-memory storage via cockpit.localStorage,
+ * identity translation, and test-friendly defaults.
  */
 
-// In-memory config storage for tests
-let storedConfig: string | null = null;
-let currentTag = '0';
-
-function nextTag(): string {
-  currentTag = String(parseInt(currentTag, 10) + 1);
-  return currentTag;
-}
+// In-memory storage for tests
+const store: Record<string, string> = {};
 
 export function resetMockConfig(): void {
-  storedConfig = null;
-  currentTag = '0';
+  Object.keys(store).forEach((k) => delete store[k]);
 }
 
 export function setMockConfig(config: object): void {
-  storedConfig = JSON.stringify(config);
-  nextTag();
+  store['servicenav-config'] = JSON.stringify(config);
 }
 
 export function getMockConfig(): object | null {
-  if (storedConfig === null) return null;
-  return JSON.parse(storedConfig);
-}
-
-// Create the mock file handle
-function createMockFileHandle() {
-  const watchers: Array<(content: any) => void> = [];
-
-  function notify(content: any): void {
-    watchers.forEach((cb) => cb(content));
-  }
-
-  return {
-    read(): Promise<[any, string]> {
-      if (storedConfig === null) {
-        return Promise.resolve([null, '-']);
-      }
-      return Promise.resolve([JSON.parse(storedConfig), currentTag]);
-    },
-
-    replace(content: any, expectedTag?: string): Promise<string> {
-      if (expectedTag !== undefined && expectedTag !== currentTag) {
-        const err = new Error('Configuration was modified by another session.');
-        (err as any).problem = 'change-conflict';
-        return Promise.reject(err);
-      }
-
-      if (content === null) {
-        storedConfig = null;
-      } else {
-        storedConfig = JSON.stringify(content);
-      }
-      const newTag = nextTag();
-      notify(content);
-      return Promise.resolve(newTag);
-    },
-
-    modify(
-      callback: (current: any) => any,
-      initial?: any,
-      _initialTag?: string
-    ): Promise<[any, string]> {
-      let current = storedConfig ? JSON.parse(storedConfig) : null;
-      if (current === null) {
-        current = initial || { version: 1, viewMode: 'grid', services: [] };
-      }
-      const updated = callback(current);
-      if (updated === undefined) {
-        return Promise.resolve([current, currentTag]);
-      }
-      storedConfig = JSON.stringify(updated);
-      const newTag = nextTag();
-      notify(updated);
-      return Promise.resolve([updated, newTag]);
-    },
-
-    watch(callback: (content: any) => void): { remove: () => void } {
-      watchers.push(callback);
-      const content = storedConfig ? JSON.parse(storedConfig) : null;
-      if (content !== null) {
-        setTimeout(() => callback(content), 0);
-      }
-      return {
-        remove(): void {
-          const idx = watchers.indexOf(callback);
-          if (idx >= 0) watchers.splice(idx, 1);
-        },
-      };
-    },
-
-    path: '/etc/cockpit/servicenav.conf',
-  };
+  const raw = store['servicenav-config'];
+  return raw ? JSON.parse(raw) : null;
 }
 
 // Build the mock cockpit object
 const mockCockpit = {
-  file: jest.fn().mockImplementation((_path: string, _options?: any) => {
-    return createMockFileHandle();
-  }),
+  localStorage: {
+    getItem: (key: string): string | null => {
+      return store[key] ?? null;
+    },
+    setItem: (key: string, value: string): void => {
+      store[key] = value;
+    },
+    removeItem: (key: string): void => {
+      delete store[key];
+    },
+  },
+
+  // cockpit.http() mock — simulates icon fetch through Cockpit's bridge
+  http: jest.fn().mockRejectedValue(new Error('Simulated TLS handshake failure')),
 
   gettext: jest.fn().mockImplementation((text: string): string => text),
 
@@ -116,30 +49,13 @@ const mockCockpit = {
 
   language: 'en',
 
-  // Mock cockpit.http() — simulates icon fetch through Cockpit's bridge.
-  // Default: fails with an error (to test fallback path).
-  // Override with mockCockpit.http.mockResolvedValue(...) for success tests.
-  http: jest.fn().mockRejectedValue(new Error('Simulated TLS handshake failure')),
-
   jump: jest.fn(),
-
-  location: {
-    path: [] as string[],
-    options: {} as Record<string, any>,
-    href: 'https://test-host:9090/servicenav',
-    go: jest.fn(),
-    replace: jest.fn(),
-    decode: jest.fn(),
-    encode: jest.fn(),
-  },
-
-  hidden: false,
 };
 
 // Install on global
 (global as any).cockpit = mockCockpit;
 
-// Mock window.location — jsdom requires delete-then-reassign
+// Mock window.location
 const mockLocation = {
   protocol: 'https:',
   hostname: 'test-host',

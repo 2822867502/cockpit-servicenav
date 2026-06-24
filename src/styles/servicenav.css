@@ -1,12 +1,11 @@
 /**
  * Styles for the Cockpit servicenav plugin.
  *
- * Follows PatternFly design conventions and Cockpit's visual style.
- * Uses PatternFly CSS custom properties for theming compatibility.
- * BEM-style flat class naming for compatibility with plain CSS.
+ * ALL colors use PatternFly CSS custom properties so that dark mode
+ * (pf-theme-dark class on <html>) works automatically.
+ * NO hardcoded colors.
  */
 
-/* ---- Page Layout ---- */
 .servicenav-header {
   display: flex;
   align-items: center;
@@ -15,17 +14,6 @@
   gap: var(--pf-v5-global--spacer--md);
 }
 
-.servicenav-header__title {
-  flex: 1;
-}
-
-.servicenav-header__actions {
-  display: flex;
-  align-items: center;
-  gap: var(--pf-v5-global--spacer--sm);
-}
-
-/* ---- Service Cards (Grid View) ---- */
 .servicenav-card {
   transition: box-shadow 0.2s ease, transform 0.15s ease;
 }
@@ -41,7 +29,7 @@
   width: 64px;
   height: 64px;
   border-radius: var(--pf-v5-global--BorderRadius--lg);
-  background: var(--pf-v5-global--BackgroundColor--light-200);
+  background: var(--pf-v5-global--BackgroundColor--200);
   overflow: hidden;
 }
 
@@ -54,7 +42,7 @@
 .servicenav-card__icon svg {
   width: 36px;
   height: 36px;
-  color: var(--pf-v5-global--Color--400);
+  color: var(--pf-v5-global--icon--Color--regular);
 }
 
 .servicenav-card__icon--sm {
@@ -90,13 +78,13 @@
   text-decoration: underline;
 }
 
-/* ---- Service List (List View) ---- */
+/* List view */
 .servicenav-list__icon-cell {
   width: 60px;
   text-align: center;
 }
 
-/* ---- Icon Loading States ---- */
+/* Icon states */
 .servicenav-icon__loading {
   display: flex;
   align-items: center;
@@ -111,29 +99,24 @@
   justify-content: center;
   width: 100%;
   height: 100%;
-  color: var(--pf-v5-global--icon--Color--light);
+  color: var(--pf-v5-global--icon--Color--regular);
 }
 
-/* ---- Empty State ---- */
+/* Empty state */
 .servicenav-empty {
   text-align: center;
   padding: var(--pf-v5-global--spacer--3xl) var(--pf-v5-global--spacer--lg);
 }
 
-.servicenav-empty__icon {
-  color: var(--pf-v5-global--icon--Color--light);
-  margin-bottom: var(--pf-v5-global--spacer--lg);
-}
-
-/* ---- View Toggle ---- */
+/* View toggle */
 .servicenav-view-toggle {
   display: inline-flex;
 }
 
-/* ---- Form: Live URL Preview ---- */
+/* Form URL preview */
 .servicenav-form__url-preview {
   padding: var(--pf-v5-global--spacer--sm);
-  background: var(--pf-v5-global--BackgroundColor--light-200);
+  background: var(--pf-v5-global--BackgroundColor--200);
   border-radius: var(--pf-v5-global--BorderRadius--sm);
   font-size: var(--pf-v5-global--FontSize--sm);
   color: var(--pf-v5-global--Color--200);
@@ -141,18 +124,16 @@
   word-break: break-all;
 }
 
-/* ---- Responsive ---- */
+/* Responsive */
 @media (max-width: 768px) {
   .servicenav-header {
     flex-direction: column;
     align-items: flex-start;
   }
-
   .servicenav-card__icon {
     width: 48px;
     height: 48px;
   }
-
   .servicenav-card__icon img {
     max-width: 36px;
     max-height: 36px;
