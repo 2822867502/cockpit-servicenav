@@ -1,14 +1,22 @@
 /**
  * Styles for the Cockpit servicenav plugin.
- * ALL colors use PatternFly 6 CSS tokens for dark mode support.
- * NO hardcoded colors.
+ * PF5 base.css does NOT include .pf-theme-dark rules — we provide them here.
  */
 
-/* ---- Foundation: force background to PF6 tokens ---- */
+/* ---- Dark-mode variable overrides (critical: PF5 base.css omits these) ---- */
+.pf-theme-dark {
+  --pf-v5-global--BackgroundColor--100: #151515;
+  --pf-v5-global--BackgroundColor--200: #1e1e1e;
+  --pf-v5-global--Color--100: #e0e0e0;
+  --pf-v5-global--Color--200: #b8bbbe;
+  --pf-v5-global--link--Color: #419eda;
+  --pf-v5-global--icon--Color--regular: #b8bbbe;
+}
+
+/* ---- Foundation ---- */
 html, body, #root {
   background-color: var(--pf-v5-global--BackgroundColor--100) !important;
 }
-
 .servicenav-page,
 .pf-v5-c-page {
   background-color: var(--pf-v5-global--BackgroundColor--100) !important;
@@ -16,114 +24,57 @@ html, body, #root {
 
 /* ---- Layout ---- */
 .servicenav-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: var(--pf-v5-global--spacer--md);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: var(--pf-v5-global--spacer--md);
 }
 
 .servicenav-card {
   transition: box-shadow 0.2s ease, transform 0.15s ease;
   background-color: var(--pf-v5-global--BackgroundColor--200);
 }
-
-.servicenav-card:hover {
-  transform: translateY(-2px);
-}
+.servicenav-card:hover { transform: translateY(-2px); }
 
 .servicenav-card__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 64px;
-  height: 64px;
+  display: flex; align-items: center; justify-content: center;
+  width: 64px; height: 64px;
   border-radius: var(--pf-v5-global--BorderRadius--lg);
   background: var(--pf-v5-global--BackgroundColor--200);
   overflow: hidden;
 }
+.servicenav-card__icon img { max-width: 48px; max-height: 48px; object-fit: contain; }
+.servicenav-card__icon svg { width: 36px; height: 36px; color: var(--pf-v5-global--icon--Color--regular); }
+.servicenav-card__icon--sm { width: 40px; height: 40px; }
+.servicenav-card__icon--sm img { max-width: 28px; max-height: 28px; }
+.servicenav-card__icon--sm svg { width: 24px; height: 24px; }
 
-.servicenav-card__icon img {
-  max-width: 48px;
-  max-height: 48px;
-  object-fit: contain;
-}
-
-.servicenav-card__icon svg {
-  width: 36px;
-  height: 36px;
-  color: var(--pf-v5-global--icon--Color--regular);
-}
-
-.servicenav-card__icon--sm {
-  width: 40px;
-  height: 40px;
-}
-
-.servicenav-card__icon--sm img {
-  max-width: 28px;
-  max-height: 28px;
-}
-
-.servicenav-card__icon--sm svg {
-  width: 24px;
-  height: 24px;
-}
-
-.servicenav-card__body {
-  min-height: 60px;
-}
+.servicenav-card__body { min-height: 60px; }
 
 .servicenav-card__url {
-  display: inline-flex;
-  align-items: center;
+  display: inline-flex; align-items: center;
   gap: var(--pf-v5-global--spacer--xs);
   margin-top: var(--pf-v5-global--spacer--sm);
   font-size: var(--pf-v5-global--FontSize--sm);
   color: var(--pf-v5-global--link--Color);
   cursor: pointer;
 }
+.servicenav-card__url:hover { text-decoration: underline; }
 
-.servicenav-card__url:hover {
-  text-decoration: underline;
-}
+.servicenav-list__icon-cell { width: 60px; text-align: center; }
 
-/* List view */
-.servicenav-list__icon-cell {
-  width: 60px;
-  text-align: center;
-}
-
-/* Icon states */
-.servicenav-icon__loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-}
-
+.servicenav-icon__loading,
 .servicenav-icon__fallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  color: var(--pf-v5-global--icon--Color--regular);
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 100%;
 }
+.servicenav-icon__fallback { color: var(--pf-v5-global--icon--Color--regular); }
 
-/* Empty state */
 .servicenav-empty {
   text-align: center;
   padding: var(--pf-v5-global--spacer--3xl) var(--pf-v5-global--spacer--lg);
 }
 
-/* View toggle */
-.servicenav-view-toggle {
-  display: inline-flex;
-}
+.servicenav-view-toggle { display: inline-flex; }
 
-/* Form URL preview */
 .servicenav-form__url-preview {
   padding: var(--pf-v5-global--spacer--sm);
   background: var(--pf-v5-global--BackgroundColor--200);
@@ -134,18 +85,8 @@ html, body, #root {
   word-break: break-all;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
-  .servicenav-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .servicenav-card__icon {
-    width: 48px;
-    height: 48px;
-  }
-  .servicenav-card__icon img {
-    max-width: 36px;
-    max-height: 36px;
-  }
+  .servicenav-header { flex-direction: column; align-items: flex-start; }
+  .servicenav-card__icon { width: 48px; height: 48px; }
+  .servicenav-card__icon img { max-width: 36px; max-height: 36px; }
 }

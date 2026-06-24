@@ -1,9 +1,10 @@
 /**
  * ServiceIcon — displays a service's favicon via <img> tag.
- * Browser handles .ico format natively. No async fetching.
+ * Falls back to a simple default icon when no URL is available.
  */
 
 import React from 'react';
+import { CubesIcon } from '@patternfly/react-icons';
 import type { ServiceEntry } from '../lib/types';
 import { useIconFetcher } from '../hooks/useIconFetcher';
 
@@ -12,27 +13,26 @@ export interface ServiceIconProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
+const DefaultIcon: React.FC<{ size: number }> = ({ size }) => (
+  <CubesIcon style={{ width: size, height: size }} />
+);
+
 export const ServiceIcon: React.FC<ServiceIconProps> = ({ service, size = 'md' }) => {
   const { iconSrc } = useIconFetcher(service);
+  const dim = size === 'sm' ? 24 : size === 'lg' ? 48 : 36;
 
   const containerClass =
     size === 'sm'
       ? 'servicenav-card__icon servicenav-card__icon--sm'
       : 'servicenav-card__icon';
 
-  // No icon URL — nothing to show
-  if (!iconSrc) {
-    return <div className={containerClass} />;
-  }
-
-  // Simple <img> — browser handles .ico, loading, errors natively
   return (
     <div className={containerClass}>
-      <img
-        src={iconSrc}
-        alt={`${service.name} icon`}
-        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-      />
+      {iconSrc ? (
+        <img src={iconSrc} alt={`${service.name} icon`} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+      ) : (
+        <DefaultIcon size={dim} />
+      )}
     </div>
   );
 };
