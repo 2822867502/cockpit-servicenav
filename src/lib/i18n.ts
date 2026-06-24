@@ -93,13 +93,13 @@ const zhCN: Record<string, string> = {
   'Loading services': '正在加载服务',
   'Error': '错误',
 
-  // HTTPS mode
-  'HTTPS: Follow Cockpit': 'HTTPS: 跟随Cockpit',
-  'HTTPS: On': 'HTTPS: 启用',
-  'HTTPS: Off': 'HTTPS: 不启用',
-  'Follow Cockpit': '跟随Cockpit',
-  'Always HTTPS': '始终HTTPS',
-  'Always HTTP': '始终HTTP',
+  // HTTPS mode (per-service)
+  'HTTPS Mode': 'HTTPS 模式',
+  'Follow Cockpit': '跟随 Cockpit',
+  'Force HTTPS': '强制 HTTPS',
+  'Force HTTP': '强制 HTTP',
+  'Protocol for relative-port services. Absolute URLs are not affected.':
+    '相对端口服务的协议设置。绝对地址不受影响。',
 
   // Error boundary
   'An unexpected error occurred while loading the service navigation panel.':

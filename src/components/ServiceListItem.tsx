@@ -15,14 +15,13 @@ import {
   Button,
 } from '@patternfly/react-core';
 import { PencilAltIcon, TimesIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
-import type { ServiceEntry, HttpsMode } from '../lib/types';
+import type { ServiceEntry } from '../lib/types';
 import { resolveServiceUrl, extractPort } from '../lib/url';
 import { _ } from '../lib/i18n';
 import { ServiceIcon } from './ServiceIcon';
 
 export interface ServiceListItemProps {
   service: ServiceEntry;
-  httpsMode?: HttpsMode;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
 }
@@ -32,7 +31,7 @@ export const ServiceListItem: React.FC<ServiceListItemProps> = ({
   onEdit,
   onDelete,
 }) => {
-  const resolvedUrl = resolveServiceUrl(service.url, httpsMode);
+  const resolvedUrl = resolveServiceUrl(service.url, service.httpsMode);
   const port = extractPort(service.url);
 
   const handleOpen = () => {

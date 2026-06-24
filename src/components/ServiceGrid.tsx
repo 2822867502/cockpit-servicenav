@@ -7,17 +7,16 @@
 
 import React from 'react';
 import { Gallery, GalleryItem } from '@patternfly/react-core';
-import type { ServiceEntry, HttpsMode } from '../lib/types';
+import type { ServiceEntry } from '../lib/types';
 import { ServiceCard } from './ServiceCard';
 
 export interface ServiceGridProps {
   services: ServiceEntry[];
-  httpsMode?: HttpsMode;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
 }
 
-export const ServiceGrid: React.FC<ServiceGridProps> = ({ services, httpsMode, onEdit, onDelete }) => {
+export const ServiceGrid: React.FC<ServiceGridProps> = ({ services, onEdit, onDelete }) => {
   const safeServices = Array.isArray(services) ? services : [];
   return (
     <Gallery
@@ -31,7 +30,6 @@ export const ServiceGrid: React.FC<ServiceGridProps> = ({ services, httpsMode, o
         <GalleryItem key={service.id}>
           <ServiceCard
             service={service}
-            httpsMode={httpsMode}
             onEdit={onEdit}
             onDelete={onDelete}
           />

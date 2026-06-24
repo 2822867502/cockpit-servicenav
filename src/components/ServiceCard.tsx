@@ -21,14 +21,13 @@ import {
   Label,
 } from '@patternfly/react-core';
 import { PencilAltIcon, TimesIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
-import type { ServiceEntry, HttpsMode } from '../lib/types';
+import type { ServiceEntry } from '../lib/types';
 import { resolveServiceUrl, extractPort } from '../lib/url';
 import { _ } from '../lib/i18n';
 import { ServiceIcon } from './ServiceIcon';
 
 export interface ServiceCardProps {
   service: ServiceEntry;
-  httpsMode?: HttpsMode;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
 }
@@ -49,8 +48,8 @@ function formatDate(isoString: string): string {
   }
 }
 
-export const ServiceCard: React.FC<ServiceCardProps> = ({ service, httpsMode, onEdit, onDelete }) => {
-  const resolvedUrl = resolveServiceUrl(service.url, httpsMode);
+export const ServiceCard: React.FC<ServiceCardProps> = ({ service, onEdit, onDelete }) => {
+  const resolvedUrl = resolveServiceUrl(service.url, service.httpsMode);
   const port = extractPort(service.url);
 
   const handleCardClick = () => {

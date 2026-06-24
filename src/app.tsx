@@ -1,27 +1,12 @@
 /**
  * App component — root orchestrator for the servicenav plugin.
- *
- * - Syncs dark-mode theme from parent Cockpit shell to the plugin iframe
- * - Manages service CRUD, view mode, and HTTPS mode settings
  */
 
 import React, { useState, useCallback, useEffect } from 'react';
 import {
-  Page,
-  PageSection,
-  PageSectionVariants,
-  Title,
-  Button,
-  Flex,
-  FlexItem,
-  Alert,
-  AlertActionCloseButton,
-  Spinner,
-  Bullseye,
-  Select,
-  SelectOption,
-  MenuToggle,
-  MenuToggleElement,
+  Page, PageSection, PageSectionVariants,
+  Title, Button, Flex, FlexItem,
+  Alert, AlertActionCloseButton, Spinner, Bullseye,
 } from '@patternfly/react-core';
 import { PlusCircleIcon } from '@patternfly/react-icons';
 import { useServices } from './hooks/useServices';
@@ -31,7 +16,7 @@ import { ServiceForm } from './components/ServiceForm';
 import { ViewToggle } from './components/ViewToggle';
 import { EmptyState } from './components/EmptyState';
 import { DeleteConfirmDialog } from './components/DeleteConfirmDialog';
-import type { ServiceEntry, ServiceFormData, HttpsMode } from './lib/types';
+import type { ServiceEntry, ServiceFormData } from './lib/types';
 import { _ } from './lib/i18n';
 
 interface ModalState {
@@ -39,82 +24,47 @@ interface ModalState {
   service?: ServiceEntry;
 }
 
-const HTTPS_LABELS: Record<HttpsMode, string> = {
-  follow: 'HTTPS: ' + 'Follow Cockpit',
-  on: 'HTTPS: ' + 'On',
-  off: 'HTTPS: ' + 'Off',
-};
-
 const App: React.FC = () => {
-  const {
-    services,
-    loading,
-    error,
-    viewMode,
-    httpsMode,
-    addService,
-    updateService,
-    removeService,
-    setViewMode,
-    setHttpsMode,
-    clearError,
-  } = useServices();
+  const { services, loading, error, viewMode, addService, updateService, removeService, setViewMode, clearError } = useServices();
 
   const [modal, setModal] = useState<ModalState>({ type: null });
   const [deleteTarget, setDeleteTarget] = useState<ServiceEntry | null>(null);
-  const [httpsOpen, setHttpsOpen] = useState(false);
 
-  // ---- Theme sync: copy pf-theme-dark class from parent Cockpit to our iframe ----
+  // ---- Theme sync: apply parent Cockpit theme before first paint ----
   useEffect(() => {
-    const applyTheme = () => {
+    const sync = () => {
       try {
-        const parentHtml = window.parent.document.documentElement;
-        const ourHtml = document.documentElement;
-        if (parentHtml.classList.contains('pf-theme-dark')) {
-          ourHtml.classList.add('pf-theme-dark');
-        } else {
-          ourHtml.classList.remove('pf-theme-dark');
-        }
-      } catch (_) { /* cross-origin — ignore */ }
+        const p = window.parent.document.documentElement.classList;
+        document.documentElement.classList.toggle('pf-theme-dark', p.contains('pf-theme-dark'));
+      } catch (_) { /* cross-origin */ }
     };
-
-    applyTheme();
-    // Observe parent theme changes
-    let observer: MutationObserver | null = null;
+    sync();
+    let obs: MutationObserver | null = null;
     try {
-      observer = new MutationObserver(applyTheme);
-      observer.observe(window.parent.document.documentElement, {
-        attributes: true,
-        attributeFilter: ['class'],
-      });
+      obs = new MutationObserver(sync);
+      obs.observe(window.parent.document.documentElement, { attributes: true, attributeFilter: ['class'] });
     } catch (_) { /* cross-origin */ }
-
-    return () => observer?.disconnect();
+    return () => obs?.disconnect();
   }, []);
 
-  // ---- Modal handlers ----
   const safeServices = Array.isArray(services) ? services : [];
 
   const openAddModal = useCallback(() => setModal({ type: 'add' }), []);
   const closeModal = useCallback(() => setModal({ type: null }), []);
-
   const openEditModal = useCallback((id: string) => {
     const svc = safeServices.find((s) => s.id === id);
     if (svc) setModal({ type: 'edit', service: svc });
   }, [safeServices]);
-
   const requestDelete = useCallback((id: string) => {
     const svc = safeServices.find((s) => s.id === id);
     if (svc) setDeleteTarget(svc);
   }, [safeServices]);
-
   const confirmDelete = useCallback(async () => {
     if (deleteTarget) {
       try { await removeService(deleteTarget.id); } catch { /* handled */ }
       setDeleteTarget(null);
     }
   }, [deleteTarget, removeService]);
-
   const handleSave = useCallback(async (data: ServiceFormData) => {
     try {
       if (modal.type === 'add') await addService(data);
@@ -122,11 +72,8 @@ const App: React.FC = () => {
     } catch { /* handled */ }
   }, [modal, addService, updateService]);
 
-  // ---- Loading ----
   if (loading) {
-    return (
-      <Page><PageSection><Bullseye><Spinner aria-label={_('Loading services')} /></Bullseye></PageSection></Page>
-    );
+    return <Page><PageSection><Bullseye><Spinner aria-label={_('Loading services')} /></Bullseye></PageSection></Page>;
   }
 
   return (
@@ -136,23 +83,6 @@ const App: React.FC = () => {
           <FlexItem><Title headingLevel="h1">{_('Service Navigation')}</Title></FlexItem>
           <FlexItem>
             <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapMd' }}>
-              {/* HTTPS mode selector */}
-              <Select
-                isOpen={httpsOpen}
-                selected={httpsMode}
-                onSelect={(_ev: any, val: any) => { setHttpsMode(val as HttpsMode); setHttpsOpen(false); }}
-                onOpenChange={setHttpsOpen}
-                toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-                  <MenuToggle ref={toggleRef} onClick={() => setHttpsOpen(!httpsOpen)} isExpanded={httpsOpen}>
-                    {_(HTTPS_LABELS[httpsMode])}
-                  </MenuToggle>
-                )}
-              >
-                <SelectOption value="follow">{_('Follow Cockpit')}</SelectOption>
-                <SelectOption value="on">{_('Always HTTPS')}</SelectOption>
-                <SelectOption value="off">{_('Always HTTP')}</SelectOption>
-              </Select>
-
               <ViewToggle viewMode={viewMode} onChange={setViewMode} />
               <Button variant="primary" onClick={openAddModal} icon={<PlusCircleIcon />}>{_('Add Service')}</Button>
             </Flex>
@@ -170,9 +100,9 @@ const App: React.FC = () => {
         {safeServices.length === 0 ? (
           <EmptyState onAddService={openAddModal} />
         ) : viewMode === 'grid' ? (
-          <ServiceGrid services={safeServices} httpsMode={httpsMode} onEdit={openEditModal} onDelete={requestDelete} />
+          <ServiceGrid services={safeServices} onEdit={openEditModal} onDelete={requestDelete} />
         ) : (
-          <ServiceList services={safeServices} httpsMode={httpsMode} onEdit={openEditModal} onDelete={requestDelete} />
+          <ServiceList services={safeServices} onEdit={openEditModal} onDelete={requestDelete} />
         )}
       </PageSection>
 

@@ -40,7 +40,6 @@ export function createDefaultConfig(): ServicenavConfig {
   return {
     version: 1,
     viewMode: 'grid',
-    httpsMode: 'follow',
     services: [],
   };
 }
@@ -59,12 +58,9 @@ export function readConfig(): ServicenavConfig {
     if (!parsed.viewMode || !['grid', 'list'].includes(parsed.viewMode)) {
       parsed.viewMode = 'grid';
     }
-    if (!parsed.httpsMode || !['follow', 'off', 'on'].includes(parsed.httpsMode)) {
-      parsed.httpsMode = 'follow';
-    }
     parsed.services = ensureArray(parsed.services).map((s: any) => {
       if (!s || typeof s !== 'object') {
-        return { id: generateId(), name: '', url: '', iconType: 'auto', iconUrl: null, description: '', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+        return { id: generateId(), name: '', url: '', iconType: 'auto', iconUrl: null, description: '', httpsMode: 'follow', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
       }
       return {
         id: s.id || generateId(),
@@ -73,6 +69,7 @@ export function readConfig(): ServicenavConfig {
         iconType: ['auto', 'url', 'none'].includes(s.iconType) ? s.iconType : 'auto',
         iconUrl: s.iconUrl || null,
         description: String(s.description || ''),
+        httpsMode: ['follow', 'http', 'https'].includes(s.httpsMode) ? s.httpsMode : 'follow',
         createdAt: s.createdAt || new Date().toISOString(),
         updatedAt: s.updatedAt || new Date().toISOString(),
       };
@@ -104,5 +101,5 @@ export function generateId(): string {
 
 export function createServiceEntry(overrides?: Partial<ServiceEntry>): ServiceEntry {
   const now = new Date().toISOString();
-  return { id: generateId(), name: '', url: '', iconType: 'auto', iconUrl: null, description: '', createdAt: now, updatedAt: now, ...overrides };
+  return { id: generateId(), name: '', url: '', iconType: 'auto', iconUrl: null, description: '', httpsMode: 'follow', createdAt: now, updatedAt: now, ...overrides };
 }

@@ -3,7 +3,7 @@
  */
 
 import { useState, useCallback } from 'react';
-import type { ServiceEntry, ServiceFormData, ServicenavConfig, HttpsMode } from '../lib/types';
+import type { ServiceEntry, ServiceFormData, ServicenavConfig } from '../lib/types';
 import { readConfig, writeConfig, generateId, ensureArray } from '../lib/config';
 
 export interface UseServicesReturn {
@@ -11,12 +11,10 @@ export interface UseServicesReturn {
   loading: boolean;
   error: string | null;
   viewMode: 'grid' | 'list';
-  httpsMode: HttpsMode;
   addService: (data: ServiceFormData) => Promise<void>;
   updateService: (id: string, data: ServiceFormData) => Promise<void>;
   removeService: (id: string) => Promise<void>;
   setViewMode: (mode: 'grid' | 'list') => Promise<void>;
-  setHttpsMode: (mode: HttpsMode) => Promise<void>;
   refresh: () => void;
   clearError: () => void;
 }
@@ -24,7 +22,6 @@ export interface UseServicesReturn {
 interface AppState {
   services: ServiceEntry[];
   viewMode: 'grid' | 'list';
-  httpsMode: HttpsMode;
 }
 
 function loadInitialState(): AppState {
@@ -32,7 +29,6 @@ function loadInitialState(): AppState {
   return {
     services: ensureArray<ServiceEntry>(config.services),
     viewMode: config.viewMode === 'list' ? 'list' : 'grid',
-    httpsMode: config.httpsMode || 'follow',
   };
 }
 
@@ -42,16 +38,15 @@ export function useServices(): UseServicesReturn {
 
   const loading = false;
 
-  const saveAndSet = useCallback((partial: Partial<AppState>) => {
+  const saveAndSet = useCallback((services: ServiceEntry[], viewMode?: 'grid' | 'list') => {
     const config = readConfig();
     const updated: ServicenavConfig = {
       ...config,
-      services: partial.services ?? config.services,
-      viewMode: partial.viewMode ?? config.viewMode,
-      httpsMode: partial.httpsMode ?? config.httpsMode,
+      services,
+      viewMode: viewMode ?? config.viewMode,
     };
     writeConfig(updated);
-    setState((prev) => ({ ...prev, ...partial }));
+    setState({ services, viewMode: updated.viewMode });
   }, []);
 
   const refresh = useCallback(() => setState(loadInitialState()), []);
@@ -68,10 +63,11 @@ export function useServices(): UseServicesReturn {
         iconType: data.iconType,
         iconUrl: data.iconUrl.trim() || null,
         description: data.description.trim(),
+        httpsMode: data.httpsMode || 'follow',
         createdAt: now,
         updatedAt: now,
       };
-      saveAndSet({ services: [...services, entry] });
+      saveAndSet([...services, entry]);
     } catch (err: any) {
       setError(err.message || 'Failed to add service.');
       throw err;
@@ -82,19 +78,18 @@ export function useServices(): UseServicesReturn {
     try {
       setError(null);
       const { services } = loadInitialState();
-      saveAndSet({
-        services: services.map((s) =>
-          s.id === id ? {
-            ...s,
-            name: data.name.trim(),
-            url: data.url.trim(),
-            iconType: data.iconType,
-            iconUrl: data.iconUrl.trim() || null,
-            description: data.description.trim(),
-            updatedAt: new Date().toISOString(),
-          } : s
-        ),
-      });
+      saveAndSet(services.map((s) =>
+        s.id === id ? {
+          ...s,
+          name: data.name.trim(),
+          url: data.url.trim(),
+          iconType: data.iconType,
+          iconUrl: data.iconUrl.trim() || null,
+          description: data.description.trim(),
+          httpsMode: data.httpsMode || 'follow',
+          updatedAt: new Date().toISOString(),
+        } : s
+      ));
     } catch (err: any) {
       setError(err.message || 'Failed to update service.');
       throw err;
@@ -105,7 +100,7 @@ export function useServices(): UseServicesReturn {
     try {
       setError(null);
       const { services } = loadInitialState();
-      saveAndSet({ services: services.filter((s) => s.id !== id) });
+      saveAndSet(services.filter((s) => s.id !== id));
     } catch (err: any) {
       setError(err.message || 'Failed to remove service.');
       throw err;
@@ -113,14 +108,12 @@ export function useServices(): UseServicesReturn {
   }, [saveAndSet]);
 
   const changeViewMode = useCallback(async (mode: 'grid' | 'list'): Promise<void> => {
-    try { saveAndSet({ viewMode: mode }); } catch (err: any) {
-      setError(err.message || 'Failed to update view mode.'); throw err;
-    }
-  }, [saveAndSet]);
-
-  const changeHttpsMode = useCallback(async (mode: HttpsMode): Promise<void> => {
-    try { saveAndSet({ httpsMode: mode }); } catch (err: any) {
-      setError(err.message || 'Failed to update HTTPS mode.'); throw err;
+    try {
+      const { services } = loadInitialState();
+      saveAndSet(services, mode);
+    } catch (err: any) {
+      setError(err.message || 'Failed to update view mode.');
+      throw err;
     }
   }, [saveAndSet]);
 
@@ -131,12 +124,10 @@ export function useServices(): UseServicesReturn {
     loading,
     error,
     viewMode: state.viewMode,
-    httpsMode: state.httpsMode,
     addService,
     updateService,
     removeService,
     setViewMode: changeViewMode,
-    setHttpsMode: changeHttpsMode,
     refresh,
     clearError,
   };

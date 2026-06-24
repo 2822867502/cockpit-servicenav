@@ -91,33 +91,29 @@ export function getCurrentHostname(): string {
 export function resolveServiceUrl(input: string, httpsMode: HttpsMode = 'follow'): string {
   const trimmed = input.trim();
 
-  if (!trimmed) {
-    return '';
-  }
+  if (!trimmed) return '';
 
-  // If it's already an absolute URL, NEVER override the protocol
-  if (/^https?:\/\//i.test(trimmed)) {
-    return trimmed;
-  }
+  // Absolute URL — NEVER override the user's explicit protocol
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
 
-  // It's a relative port specification — use httpsMode to determine protocol
+  // Relative port specification — determine protocol from httpsMode
   const match = trimmed.match(/^(\d+)(\/.*)?$/);
   if (match) {
     const port = match[1];
     const path = match[2] || '';
     const hostname = getCurrentHostname();
     let protocol: string;
-    if (httpsMode === 'on') {
+    if (httpsMode === 'https') {
       protocol = 'https:';
-    } else if (httpsMode === 'off') {
+    } else if (httpsMode === 'http') {
       protocol = 'http:';
     } else {
+      // 'follow' — use same protocol as current Cockpit page
       protocol = getCurrentProtocol();
     }
     return `${protocol}//${hostname}:${port}${path}`;
   }
 
-  // Fallback: return as-is (will likely be invalid, validation catches this)
   return trimmed;
 }
 

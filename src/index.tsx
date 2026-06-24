@@ -21,10 +21,23 @@ async function bootstrap(): Promise<void> {
       await import('./lib/mockCockpit');
     }
 
-    // Phase 2: initialize language BEFORE any component calls _()
+    // Phase 2: sync dark-mode theme from parent Cockpit BEFORE first render
+    try {
+      if (window.parent.document.documentElement.classList.contains('pf-theme-dark')) {
+        document.documentElement.classList.add('pf-theme-dark');
+      }
+      // Also set a MutationObserver for ongoing sync
+      const observer = new MutationObserver(() => {
+        const isDark = window.parent.document.documentElement.classList.contains('pf-theme-dark');
+        document.documentElement.classList.toggle('pf-theme-dark', isDark);
+      });
+      observer.observe(window.parent.document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    } catch (_) { /* cross-origin — ignore */ }
+
+    // Phase 3: initialize language BEFORE any component calls _()
     initI18n();
 
-    // Phase 3: render
+    // Phase 4: render
     const container = document.getElementById('root');
     if (!container) {
       console.error('[servicenav] #root element not found.');

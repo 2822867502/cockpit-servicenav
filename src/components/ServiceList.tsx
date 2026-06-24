@@ -7,12 +7,11 @@
 
 import React from 'react';
 import { DataList } from '@patternfly/react-core';
-import type { ServiceEntry, HttpsMode } from '../lib/types';
+import type { ServiceEntry } from '../lib/types';
 import { ServiceListItem } from './ServiceListItem';
 
 export interface ServiceListProps {
   services: ServiceEntry[];
-  httpsMode?: HttpsMode;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
 }
@@ -25,7 +24,6 @@ export const ServiceList: React.FC<ServiceListProps> = ({ services, httpsMode, o
         <ServiceListItem
           key={service.id}
           service={service}
-          httpsMode={httpsMode}
           onEdit={onEdit}
           onDelete={onDelete}
         />
