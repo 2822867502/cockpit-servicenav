@@ -81,7 +81,24 @@ export function readConfig(): Promise<{ config: ServicenavConfig; tag: string }>
       const file = getConfigFile();
       file
         .read()
-        .then(([content, tag]: [ServicenavConfig | null, string]) => {
+        .then((rawResult: unknown) => {
+          // DIAGNOSTIC: log the raw result type from cockpit.file().read()
+          console.log('[servicenav] config.read() raw type:', typeof rawResult,
+            'isArray:', Array.isArray(rawResult));
+
+          // Safely extract content and tag — cockpit returns [content, tag]
+          // but if the bridge returns something unexpected, we default to null
+          let content: ServicenavConfig | null = null;
+          let tag = '-';
+          if (Array.isArray(rawResult) && rawResult.length >= 2) {
+            content = rawResult[0] as ServicenavConfig | null;
+            tag = String(rawResult[1]);
+          }
+
+          console.log('[servicenav] config.read() content type:', typeof content,
+            'services type:', content ? typeof content.services : 'N/A',
+            'isArray:', content ? Array.isArray(content.services) : 'N/A');
+
           if (content === null) {
             // File doesn't exist - return defaults
             resolve({ config: createDefaultConfig(), tag: '-' });
@@ -92,11 +109,12 @@ export function readConfig(): Promise<{ config: ServicenavConfig; tag: string }>
           }
         })
         .catch((error: Error) => {
-          console.error('Failed to read config:', error);
+          console.error('[servicenav] Failed to read config:', error?.message || error);
           // On read error, return defaults so the UI still works
           resolve({ config: createDefaultConfig(), tag: '-' });
         });
     } catch (error) {
+      console.error('[servicenav] getConfigFile() failed:', error);
       reject(error);
     }
   });
@@ -198,6 +216,9 @@ export function watchConfig(
   try {
     const file = getConfigFile();
     const handle = file.watch((content: ServicenavConfig | null) => {
+      console.log('[servicenav] config.watch() content type:', typeof content,
+        'services type:', content ? typeof content.services : 'N/A',
+        'isArray:', content ? Array.isArray(content.services) : 'N/A');
       if (content !== null) {
         callback(content);
       }

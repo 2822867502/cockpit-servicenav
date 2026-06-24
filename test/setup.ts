@@ -9,6 +9,13 @@
 // Install the cockpit mock and window.location mock on the global scope
 import './__mocks__/cockpit';
 
-// Initialize i18n (detects language from mock cockpit.language = 'en')
+// Override navigator.language to 'en' so tests use English
+Object.defineProperty(navigator, 'language', {
+  value: 'en',
+  writable: true,
+  configurable: true,
+});
+
+// Initialize i18n — forces English since navigator.language='en'
 import { initI18n } from '../src/lib/i18n';
 initI18n();
