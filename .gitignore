@@ -5,3 +5,4 @@ test-reports/
 *.log
 .DS_Store
 prompts/
+index.css
