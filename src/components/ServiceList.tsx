@@ -7,19 +7,17 @@
 
 import React from 'react';
 import { DataList } from '@patternfly/react-core';
-import type { ServiceEntry } from '../lib/types';
+import type { ServiceEntry, HttpsMode } from '../lib/types';
 import { ServiceListItem } from './ServiceListItem';
 
 export interface ServiceListProps {
-  /** Array of services to display */
   services: ServiceEntry[];
-  /** Called when user clicks edit on a service */
+  httpsMode?: HttpsMode;
   onEdit: (id: string) => void;
-  /** Called when user clicks delete on a service */
   onDelete: (id: string) => void;
 }
 
-export const ServiceList: React.FC<ServiceListProps> = ({ services, onEdit, onDelete }) => {
+export const ServiceList: React.FC<ServiceListProps> = ({ services, httpsMode, onEdit, onDelete }) => {
   const safeServices = Array.isArray(services) ? services : [];
   return (
     <DataList aria-label="Service navigation list" isCompact>
@@ -27,6 +25,7 @@ export const ServiceList: React.FC<ServiceListProps> = ({ services, onEdit, onDe
         <ServiceListItem
           key={service.id}
           service={service}
+          httpsMode={httpsMode}
           onEdit={onEdit}
           onDelete={onDelete}
         />

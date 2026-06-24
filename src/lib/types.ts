@@ -10,6 +10,9 @@ export type IconType = 'auto' | 'url' | 'none';
 /** Valid view modes for the service display */
 export type ViewMode = 'grid' | 'list';
 
+/** HTTPS mode for service link protocol */
+export type HttpsMode = 'follow' | 'off' | 'on';
+
 /** A single service entry in the configuration */
 export interface ServiceEntry {
   /** Unique identifier (UUID v4) */
@@ -58,6 +61,9 @@ export interface ServicenavConfig {
 
   /** UI preference: view mode */
   viewMode: ViewMode;
+
+  /** HTTPS mode for link protocol */
+  httpsMode: HttpsMode;
 
   /** Array of configured services */
   services: ServiceEntry[];

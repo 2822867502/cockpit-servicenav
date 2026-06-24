@@ -2,12 +2,12 @@
  * URL resolution utilities for the servicenav plugin.
  *
  * Handles two types of service URLs:
- * 1. Absolute URLs: "https://example.com:3000" - returned as-is
- * 2. Relative ports: "8080" or "9090/admin" - resolved using current Cockpit origin
- *
- * The current Cockpit origin is determined from window.location, which gives
- * the protocol, hostname, and port that the user is accessing Cockpit through.
+ * 1. Absolute URLs: "https://example.com:3000" - returned as-is (protocol NOT overridden)
+ * 2. Relative ports: "8080" or "9090/admin" - resolved using current Cockpit hostname
+ *    with protocol determined by the httpsMode setting.
  */
+
+import type { HttpsMode } from './types';
 
 /**
  * Check if a service URL input is a relative port specification.
@@ -88,25 +88,32 @@ export function getCurrentHostname(): string {
  * @param input - The raw URL/port string from config
  * @returns Fully resolved absolute URL
  */
-export function resolveServiceUrl(input: string): string {
+export function resolveServiceUrl(input: string, httpsMode: HttpsMode = 'follow'): string {
   const trimmed = input.trim();
 
   if (!trimmed) {
     return '';
   }
 
-  // If it's already an absolute URL, return as-is
+  // If it's already an absolute URL, NEVER override the protocol
   if (/^https?:\/\//i.test(trimmed)) {
     return trimmed;
   }
 
-  // It's a relative port specification
+  // It's a relative port specification — use httpsMode to determine protocol
   const match = trimmed.match(/^(\d+)(\/.*)?$/);
   if (match) {
     const port = match[1];
     const path = match[2] || '';
-    const protocol = getCurrentProtocol();
     const hostname = getCurrentHostname();
+    let protocol: string;
+    if (httpsMode === 'on') {
+      protocol = 'https:';
+    } else if (httpsMode === 'off') {
+      protocol = 'http:';
+    } else {
+      protocol = getCurrentProtocol();
+    }
     return `${protocol}//${hostname}:${port}${path}`;
   }
 

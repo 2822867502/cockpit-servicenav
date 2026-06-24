@@ -93,6 +93,14 @@ const zhCN: Record<string, string> = {
   'Loading services': '正在加载服务',
   'Error': '错误',
 
+  // HTTPS mode
+  'HTTPS: Follow Cockpit': 'HTTPS: 跟随Cockpit',
+  'HTTPS: On': 'HTTPS: 启用',
+  'HTTPS: Off': 'HTTPS: 不启用',
+  'Follow Cockpit': '跟随Cockpit',
+  'Always HTTPS': '始终HTTPS',
+  'Always HTTP': '始终HTTP',
+
   // Error boundary
   'An unexpected error occurred while loading the service navigation panel.':
     '加载服务导航面板时发生意外错误。',

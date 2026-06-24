@@ -40,6 +40,7 @@ export function createDefaultConfig(): ServicenavConfig {
   return {
     version: 1,
     viewMode: 'grid',
+    httpsMode: 'follow',
     services: [],
   };
 }
@@ -57,6 +58,9 @@ export function readConfig(): ServicenavConfig {
     if (typeof parsed.version !== 'number') parsed.version = 1;
     if (!parsed.viewMode || !['grid', 'list'].includes(parsed.viewMode)) {
       parsed.viewMode = 'grid';
+    }
+    if (!parsed.httpsMode || !['follow', 'off', 'on'].includes(parsed.httpsMode)) {
+      parsed.httpsMode = 'follow';
     }
     parsed.services = ensureArray(parsed.services).map((s: any) => {
       if (!s || typeof s !== 'object') {

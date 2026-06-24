@@ -1,56 +1,60 @@
 /**
  * useServices hook — manages the service list state with localStorage persistence.
- *
- * Configuration is stored via cockpit.localStorage (or browser localStorage in dev).
- * All reads/writes are synchronous — no async overhead, no permission issues.
  */
 
 import { useState, useCallback } from 'react';
-import type { ServiceEntry, ServiceFormData, ServicenavConfig } from '../lib/types';
-import { readConfig, writeConfig, createServiceEntry, generateId, ensureArray } from '../lib/config';
+import type { ServiceEntry, ServiceFormData, ServicenavConfig, HttpsMode } from '../lib/types';
+import { readConfig, writeConfig, generateId, ensureArray } from '../lib/config';
 
 export interface UseServicesReturn {
   services: ServiceEntry[];
   loading: boolean;
   error: string | null;
   viewMode: 'grid' | 'list';
+  httpsMode: HttpsMode;
   addService: (data: ServiceFormData) => Promise<void>;
   updateService: (id: string, data: ServiceFormData) => Promise<void>;
   removeService: (id: string) => Promise<void>;
   setViewMode: (mode: 'grid' | 'list') => Promise<void>;
+  setHttpsMode: (mode: HttpsMode) => Promise<void>;
   refresh: () => void;
   clearError: () => void;
 }
 
-function loadInitialState(): { services: ServiceEntry[]; viewMode: 'grid' | 'list' } {
+interface AppState {
+  services: ServiceEntry[];
+  viewMode: 'grid' | 'list';
+  httpsMode: HttpsMode;
+}
+
+function loadInitialState(): AppState {
   const config = readConfig();
   return {
     services: ensureArray<ServiceEntry>(config.services),
     viewMode: config.viewMode === 'list' ? 'list' : 'grid',
+    httpsMode: config.httpsMode || 'follow',
   };
 }
 
 export function useServices(): UseServicesReturn {
-  const [state, setState] = useState<{ services: ServiceEntry[]; viewMode: 'grid' | 'list' }>(loadInitialState);
+  const [state, setState] = useState<AppState>(loadInitialState);
   const [error, setError] = useState<string | null>(null);
 
-  // loading is always false since reads are synchronous
   const loading = false;
 
-  const saveAndSet = useCallback((services: ServiceEntry[], viewMode?: 'grid' | 'list') => {
+  const saveAndSet = useCallback((partial: Partial<AppState>) => {
     const config = readConfig();
     const updated: ServicenavConfig = {
       ...config,
-      services,
-      viewMode: viewMode ?? config.viewMode,
+      services: partial.services ?? config.services,
+      viewMode: partial.viewMode ?? config.viewMode,
+      httpsMode: partial.httpsMode ?? config.httpsMode,
     };
     writeConfig(updated);
-    setState({ services, viewMode: updated.viewMode });
+    setState((prev) => ({ ...prev, ...partial }));
   }, []);
 
-  const refresh = useCallback(() => {
-    setState(loadInitialState());
-  }, []);
+  const refresh = useCallback(() => setState(loadInitialState()), []);
 
   const addService = useCallback(async (data: ServiceFormData): Promise<void> => {
     try {
@@ -67,7 +71,7 @@ export function useServices(): UseServicesReturn {
         createdAt: now,
         updatedAt: now,
       };
-      saveAndSet([...services, entry]);
+      saveAndSet({ services: [...services, entry] });
     } catch (err: any) {
       setError(err.message || 'Failed to add service.');
       throw err;
@@ -77,11 +81,20 @@ export function useServices(): UseServicesReturn {
   const updateService = useCallback(async (id: string, data: ServiceFormData): Promise<void> => {
     try {
       setError(null);
-      const { services, viewMode } = loadInitialState();
-      const updated = services.map((s) =>
-        s.id === id ? { ...s, ...data, name: data.name.trim(), url: data.url.trim(), iconUrl: data.iconUrl.trim() || null, description: data.description.trim(), updatedAt: new Date().toISOString() } : s
-      );
-      saveAndSet(updated, viewMode);
+      const { services } = loadInitialState();
+      saveAndSet({
+        services: services.map((s) =>
+          s.id === id ? {
+            ...s,
+            name: data.name.trim(),
+            url: data.url.trim(),
+            iconType: data.iconType,
+            iconUrl: data.iconUrl.trim() || null,
+            description: data.description.trim(),
+            updatedAt: new Date().toISOString(),
+          } : s
+        ),
+      });
     } catch (err: any) {
       setError(err.message || 'Failed to update service.');
       throw err;
@@ -91,8 +104,8 @@ export function useServices(): UseServicesReturn {
   const removeService = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null);
-      const { services, viewMode } = loadInitialState();
-      saveAndSet(services.filter((s) => s.id !== id), viewMode);
+      const { services } = loadInitialState();
+      saveAndSet({ services: services.filter((s) => s.id !== id) });
     } catch (err: any) {
       setError(err.message || 'Failed to remove service.');
       throw err;
@@ -100,13 +113,14 @@ export function useServices(): UseServicesReturn {
   }, [saveAndSet]);
 
   const changeViewMode = useCallback(async (mode: 'grid' | 'list'): Promise<void> => {
-    try {
-      setError(null);
-      const { services } = loadInitialState();
-      saveAndSet(services, mode);
-    } catch (err: any) {
-      setError(err.message || 'Failed to update view mode.');
-      throw err;
+    try { saveAndSet({ viewMode: mode }); } catch (err: any) {
+      setError(err.message || 'Failed to update view mode.'); throw err;
+    }
+  }, [saveAndSet]);
+
+  const changeHttpsMode = useCallback(async (mode: HttpsMode): Promise<void> => {
+    try { saveAndSet({ httpsMode: mode }); } catch (err: any) {
+      setError(err.message || 'Failed to update HTTPS mode.'); throw err;
     }
   }, [saveAndSet]);
 
@@ -117,10 +131,12 @@ export function useServices(): UseServicesReturn {
     loading,
     error,
     viewMode: state.viewMode,
+    httpsMode: state.httpsMode,
     addService,
     updateService,
     removeService,
     setViewMode: changeViewMode,
+    setHttpsMode: changeHttpsMode,
     refresh,
     clearError,
   };
