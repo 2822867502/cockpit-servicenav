@@ -6,6 +6,26 @@
  * NO hardcoded colors.
  */
 
+/* ---- Dark-mode foundation: override PF5 Page component white default ---- */
+/* PF5 Page uses --pf-v5-c-page--BackgroundColor which defaults to
+ * --pf-v5-global--BackgroundColor--light-100 (white). This does NOT
+ * auto-switch in dark mode. We must force it. */
+.servicenav-page,
+.pf-theme-dark .pf-v5-c-page {
+  background-color: var(--pf-v5-global--BackgroundColor--100) !important;
+}
+
+/* Ensure body inherits dark background */
+body, #root {
+  background-color: var(--pf-v5-global--BackgroundColor--100);
+}
+
+/* Card surfaces in dark mode */
+.pf-theme-dark .servicenav-card {
+  background-color: var(--pf-v5-global--BackgroundColor--200);
+}
+
+/* ---- Layout ---- */
 .servicenav-header {
   display: flex;
   align-items: center;

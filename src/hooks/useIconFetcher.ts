@@ -132,7 +132,7 @@ function tryLoadViaImageTag(url: string, signal: AbortSignal): Promise<string | 
  * Get the favicon URL for a service.
  */
 function getFaviconUrl(service: ServiceEntry): string {
-  const resolvedUrl = resolveServiceUrl(service.url);
+  const resolvedUrl = resolveServiceUrl(service.url, service.httpsMode);
   try {
     const urlObj = new URL(resolvedUrl);
     return `${urlObj.origin}/favicon.ico`;
