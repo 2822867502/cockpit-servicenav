@@ -7,6 +7,8 @@ A Cockpit plugin that adds a "Service Navigation" page to the Cockpit admin inte
 
 **Authors**: deepseek v4 pro & zlk
 
+**Repository**: [github.com/2822867502/cockpit-servicenav](https://github.com/2822867502/cockpit-servicenav)
+
 [中文文档](README.zh_CN.md)
 
 ---
@@ -32,8 +34,8 @@ A Cockpit plugin that adds a "Service Navigation" page to the Cockpit admin inte
 ## Quick Start
 
 ```bash
-git clone <repo-url>
-cd cockpit-plugin-subservice
+git clone https://github.com/2822867502/cockpit-servicenav.git
+cd cockpit-servicenav
 npm install
 npm run build
 sudo make install      # installs to /usr/local/share/cockpit/

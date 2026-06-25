@@ -7,6 +7,8 @@ Cockpit 管理界面的服务导航插件。以卡片或列表形式展示可配
 
 **作者**: deepseek v4 pro & zlk
 
+**仓库**: [github.com/2822867502/cockpit-servicenav](https://github.com/2822867502/cockpit-servicenav)
+
 [English Documentation](README.md)
 
 ---
@@ -32,8 +34,8 @@ Cockpit 管理界面的服务导航插件。以卡片或列表形式展示可配
 ## 快速开始
 
 ```bash
-git clone <仓库地址>
-cd cockpit-plugin-subservice
+git clone https://github.com/2822867502/cockpit-servicenav.git
+cd cockpit-servicenav
 npm install
 npm run build
 sudo make install      # 安装到 /usr/local/share/cockpit/
