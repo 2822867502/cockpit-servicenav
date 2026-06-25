@@ -152,6 +152,16 @@
   border: none;
   border-radius: 8px;
   outline-offset: -6px;
+  color: #e0e0e0;
+}
+.pf-theme-dark .pf-v5-c-form-control > input::placeholder,
+.pf-theme-dark .pf-v5-c-form-control > textarea::placeholder {
+  color: #6a6e73;
+}
+.pf-theme-dark input[type="text"],
+.pf-theme-dark input[type="url"],
+.pf-theme-dark textarea {
+  color: #e0e0e0;
 }
 
 /* MenuToggle — like pf-v6-c-menu-toggle */
