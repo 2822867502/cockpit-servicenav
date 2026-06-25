@@ -5,7 +5,7 @@
 
 Cockpit 管理界面的服务导航插件。以卡片或列表形式展示可配置的子服务（如 Portainer、Grafana、自定义 Web 应用），支持一键跳转。
 
-**作者**: deepseek v4 pro & zlk
+**作者**: zlk（由 deepseek v4 pro 辅助开发）
 
 **仓库**: [github.com/2822867502/cockpit-servicenav](https://github.com/2822867502/cockpit-servicenav)
 
@@ -202,7 +202,7 @@ npm test              # 126 个测试，10 个套件
 
 ## 版权声明
 
-- 本插件：MIT License — Copyright (c) 2026 deepseek v4 pro & zlk
+- 本插件：MIT License — Copyright (c) 2026 zlk
 - Cockpit API：LGPL-2.1（插件作为独立作品使用其公共 API）
 - PatternFly 5：MIT License
 - React：MIT License

@@ -5,7 +5,7 @@
 
 A Cockpit plugin that adds a "Service Navigation" page to the Cockpit admin interface. Displays configurable sub-services (Portainer, Grafana, custom webapps) as cards or list items with quick-access links.
 
-**Authors**: deepseek v4 pro & zlk
+**Author**: zlk (developed with deepseek v4 pro)
 
 **Repository**: [github.com/2822867502/cockpit-servicenav](https://github.com/2822867502/cockpit-servicenav)
 
@@ -241,7 +241,7 @@ The plugin has `ensureArray()` guards — it will silently recover by returning 
 
 ## License
 
-MIT License — Copyright (c) 2026 deepseek v4 pro & zlk
+MIT License — Copyright (c) 2026 zlk
 
 ## Contributing
 
