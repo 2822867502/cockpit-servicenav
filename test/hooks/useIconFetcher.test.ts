@@ -33,10 +33,16 @@ describe('useIconFetcher', () => {
     expect(result.current.iconSrc).toBe('https://test-host:8080/favicon.ico');
   });
 
-  it('returns custom URL for iconType "url"', () => {
+  it('returns custom URL for iconType "url" (absolute)', () => {
     const svc = { ...baseService, iconType: 'url' as const, iconUrl: 'https://example.com/icon.png' };
     const { result } = renderHook(() => useIconFetcher(svc));
     expect(result.current.iconSrc).toBe('https://example.com/icon.png');
+  });
+
+  it('resolves relative icon URL with current host for iconType "url"', () => {
+    const svc = { ...baseService, iconType: 'url' as const, iconUrl: '5080/static/img/logo.svg', httpsMode: 'https' as const };
+    const { result } = renderHook(() => useIconFetcher(svc));
+    expect(result.current.iconSrc).toBe('https://test-host:5080/static/img/logo.svg');
   });
 
   it('respects httpsMode for relative port URLs', () => {

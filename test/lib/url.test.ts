@@ -106,6 +106,21 @@ describe('resolveServiceUrl', () => {
     expect(result).toBe('https://test-host:8080');
   });
 
+  it('resolves "http://:5080/path" using current hostname', () => {
+    const result = resolveServiceUrl('http://:5080/static/img/logo.svg');
+    expect(result).toBe('http://test-host:5080/static/img/logo.svg');
+  });
+
+  it('resolves "https://:8443/icon.png" using current hostname', () => {
+    const result = resolveServiceUrl('https://:8443/icon.png');
+    expect(result).toBe('https://test-host:8443/icon.png');
+  });
+
+  it('resolves "http://:3000" (no path) using current hostname', () => {
+    const result = resolveServiceUrl('http://:3000');
+    expect(result).toBe('http://test-host:3000');
+  });
+
   it('returns input unchanged for unrecognized format', () => {
     // Fallback behavior
     expect(resolveServiceUrl('not-a-valid-url')).toBe('not-a-valid-url');

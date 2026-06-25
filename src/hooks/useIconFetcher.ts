@@ -27,7 +27,7 @@ function getFaviconUrl(service: ServiceEntry): string {
 export function useIconFetcher(service: ServiceEntry): UseIconFetcherReturn {
   const iconSrc = useMemo(() => {
     if (service.iconType === 'none') return null;
-    if (service.iconType === 'url' && service.iconUrl) return service.iconUrl;
+    if (service.iconType === 'url' && service.iconUrl) return resolveServiceUrl(service.iconUrl, service.httpsMode);
     if (service.iconType === 'auto') return getFaviconUrl(service);
     return null;
   }, [service.id, service.iconType, service.iconUrl, service.url]);

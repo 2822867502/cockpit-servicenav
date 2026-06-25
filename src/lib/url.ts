@@ -93,7 +93,18 @@ export function resolveServiceUrl(input: string, httpsMode: HttpsMode = 'follow'
 
   if (!trimmed) return '';
 
-  // Absolute URL — NEVER override the user's explicit protocol
+  // Protocol with missing hostname: "http://:5080/path" or "https://:8443/icon.svg"
+  // Substitute current Cockpit hostname, keep the specified port and protocol
+  const protoMatch = trimmed.match(/^(https?):\/\/:(\d+)(\/.*)?$/i);
+  if (protoMatch) {
+    const protocol = protoMatch[1] + ':';
+    const port = protoMatch[2];
+    const path = protoMatch[3] || '';
+    const hostname = getCurrentHostname();
+    return `${protocol}//${hostname}:${port}${path}`;
+  }
+
+  // Absolute URL with full hostname — NEVER override the user's explicit protocol+host
   if (/^https?:\/\//i.test(trimmed)) return trimmed;
 
   // Relative port specification — determine protocol from httpsMode
