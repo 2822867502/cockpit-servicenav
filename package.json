@@ -2,7 +2,7 @@
   "name": "cockpit-servicenav",
   "version": "1.0.0",
   "description": "Cockpit plugin for service navigation with quick access links to sub-services",
-  "license": "GPL-3.0",
+  "license": "MIT",
   "scripts": {
     "build": "node build.js",
     "watch": "node build.js --watch",

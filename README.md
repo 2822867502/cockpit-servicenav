@@ -1,6 +1,6 @@
 # Cockpit Service Navigation Plugin (servicenav)
 
-[![License](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-130%20passed-brightgreen.svg)](test-reports/)
 
 A Cockpit plugin that adds a "Service Navigation" page to the Cockpit admin interface. Displays configurable sub-services (Portainer, Grafana, custom webapps) as cards or list items with quick-access links.
@@ -241,7 +241,7 @@ The plugin has `ensureArray()` guards — it will silently recover by returning 
 
 ## License
 
-GNU General Public License v3.0 — Copyright (C) 2026 deepseek v4 pro & zlk
+MIT License — Copyright (c) 2026 deepseek v4 pro & zlk
 
 ## Contributing
 

@@ -1,6 +1,6 @@
 # Cockpit 服务导航插件 (servicenav)
 
-[![License](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-130%20passed-brightgreen.svg)](test-reports/)
 
 Cockpit 管理界面的服务导航插件。以卡片或列表形式展示可配置的子服务（如 Portainer、Grafana、自定义 Web 应用），支持一键跳转。
@@ -202,10 +202,10 @@ npm test              # 126 个测试，10 个套件
 
 ## 版权声明
 
-- 本插件：GNU General Public License v3.0 — Copyright (C) 2026 deepseek v4 pro & zlk
+- 本插件：MIT License — Copyright (c) 2026 deepseek v4 pro & zlk
 - Cockpit API：LGPL-2.1（插件作为独立作品使用其公共 API）
-- PatternFly 5：MIT License（GPL 兼容）
-- React：MIT License（GPL 兼容）
+- PatternFly 5：MIT License
+- React：MIT License
 
 ## 贡献指南
 
