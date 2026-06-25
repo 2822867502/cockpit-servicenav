@@ -1,7 +1,7 @@
 # Cockpit Service Navigation Plugin (servicenav)
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-126%20passed-brightgreen.svg)](test-reports/)
+[![Tests](https://img.shields.io/badge/tests-130%20passed-brightgreen.svg)](test-reports/)
 
 A Cockpit plugin that adds a "Service Navigation" page to the Cockpit admin interface. Displays configurable sub-services (Portainer, Grafana, custom webapps) as cards or list items with quick-access links.
 
@@ -103,7 +103,7 @@ Absolute URLs (starting with `http://` or `https://`) are never affected by this
 | Mode | Description |
 |---|---|
 | `auto` | Load `/favicon.ico` from the service URL via `<img>` tag |
-| `url` | Use a user-provided icon URL |
+| `url` | Use a user-provided icon URL (supports relative port like `5080/path` or `http://:5080/path`) |
 | `none` | Show default cube icon |
 
 ## Dark Mode

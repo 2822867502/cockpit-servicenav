@@ -1,7 +1,7 @@
 # Cockpit 服务导航插件 (servicenav)
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-126%20passed-brightgreen.svg)](test-reports/)
+[![Tests](https://img.shields.io/badge/tests-130%20passed-brightgreen.svg)](test-reports/)
 
 Cockpit 管理界面的服务导航插件。以卡片或列表形式展示可配置的子服务（如 Portainer、Grafana、自定义 Web 应用），支持一键跳转。
 
@@ -103,7 +103,7 @@ make devel-install     # 符号链接到 ~/.local/share/cockpit/
 | 模式 | 说明 |
 |---|---|
 | `auto` | 通过 `<img>` 标签加载服务的 `/favicon.ico` |
-| `url` | 使用用户提供的图标 URL |
+| `url` | 使用用户提供的图标 URL（支持相对端口如 `5080/path` 或 `http://:5080/path`） |
 | `none` | 显示默认立方体图标 |
 
 ## 深色模式
