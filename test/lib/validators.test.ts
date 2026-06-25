@@ -130,7 +130,7 @@ describe('validateIconUrl', () => {
   it('returns error for URL without http/https', () => {
     const result = validateIconUrl('example.com/icon.png');
     expect(result).not.toBeNull();
-    expect(result).toContain('http://');
+    expect(result).toContain('Invalid icon URL');
   });
 
   it('returns error for invalid URL', () => {

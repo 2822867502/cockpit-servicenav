@@ -89,6 +89,18 @@ const zhCN: Record<string, string> = {
   'This action cannot be undone. The service link will be removed from the navigation panel.':
     '此操作不可撤消。该服务链接将从导航面板中移除。',
 
+  // Validation messages
+  'Name is required.': '名称不能为空。',
+  'Name must be 100 characters or fewer.': '名称不能超过 100 个字符。',
+  'URL or port is required.': 'URL 或端口不能为空。',
+  'URL must be 2048 characters or fewer.': 'URL 不能超过 2048 个字符。',
+  'Invalid format. Use absolute URL (https://...), port (8080), or port+path (9090/admin).':
+    '格式无效。请使用绝对 URL（https://...）、端口号（8080）或端口+路径（9090/admin）。',
+  'Icon URL must be 2048 characters or fewer.': '图标 URL 不能超过 2048 个字符。',
+  'Invalid icon URL. Use absolute URL or relative port+path.':
+    '无效的图标 URL。请使用绝对 URL 或相对端口+路径。',
+  'Description must be 500 characters or fewer.': '描述不能超过 500 个字符。',
+
   // Loading & error
   'Loading services': '正在加载服务',
   'Error': '错误',
