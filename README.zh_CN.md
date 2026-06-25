@@ -138,7 +138,7 @@ cockpit-servicenav/
 │   ├── lib/                 # 工具模块（6 个）
 │   └── styles/              # 插件样式
 │
-├── test/                    # 10 个测试套件，126 个测试
+├── test/                    # 10 个测试套件，130 个测试
 └── po/                      # 翻译参考文件
 ```
 
@@ -147,7 +147,7 @@ cockpit-servicenav/
 ```bash
 npm run build         # 构建到 dist/
 npm run watch         # 构建并监听文件变更
-npm test              # 运行 126 个 Jest 测试
+npm test              # 运行 130 个 Jest 测试
 npm run lint          # ESLint 检查
 npm run typecheck     # TypeScript 类型检查
 npm run clean         # 清理构建产物
@@ -156,7 +156,7 @@ npm run clean         # 清理构建产物
 ## 测试
 
 ```bash
-npm test              # 126 个测试，10 个套件
+npm test              # 130 个测试，10 个套件
 ```
 
 测试使用完整的 `cockpit` 全局 API mock，无需安装 Cockpit。

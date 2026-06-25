@@ -176,7 +176,7 @@ cockpit-servicenav/
 ```bash
 npm run build         # Build plugin to dist/
 npm run watch         # Build and watch for changes
-npm test              # Run 126 Jest tests with coverage
+npm test              # Run 130 Jest tests with coverage
 npm run lint          # Run ESLint
 npm run typecheck     # TypeScript type checking
 npm run clean         # Remove build artifacts
@@ -185,7 +185,7 @@ npm run clean         # Remove build artifacts
 ## Testing
 
 ```bash
-npm test              # 126 tests, 10 suites
+npm test              # 130 tests, 10 suites
 ```
 
 Tests use a full mock of the `cockpit` global API. No real Cockpit installation needed.
