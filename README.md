@@ -121,7 +121,7 @@ This mirrors the official Cockpit PF6 approach of overriding design tokens in th
 ## Directory Structure
 
 ```
-cockpit-plugin-subservice/
+cockpit-servicenav/
 ├── build.js                 # esbuild build script
 ├── Makefile                 # Top-level build targets
 ├── package.json             # NPM config and dependencies

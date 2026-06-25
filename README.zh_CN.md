@@ -119,7 +119,7 @@ make devel-install     # 符号链接到 ~/.local/share/cockpit/
 ## 目录结构
 
 ```
-cockpit-plugin-subservice/
+cockpit-servicenav/
 ├── build.js                 # esbuild 构建脚本
 ├── Makefile                 # 顶层构建目标
 ├── package.json             # NPM 配置和依赖
